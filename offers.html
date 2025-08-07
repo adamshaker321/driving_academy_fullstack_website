@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>أسعار الكورسات</title>
+  <style>
+    body {
+      direction: rtl;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f6f8fa;
+      color: #333;
+      padding: 40px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #444;
+      margin-bottom: 40px;
+    }
+
+    .course-card {
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 20px 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      transition: 0.3s;
+    }
+
+    .course-card:hover {
+      transform: scale(1.01);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
+    }
+
+    .course-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #2b6777;
+      margin-bottom: 10px;
+    }
+
+    .old-price {
+      color: #999;
+      font-size: 16px;
+      margin-right: 10px;
+    }
+
+    .new-price {
+      color: #52ab98;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .course-details {
+      margin-top: 15px;
+      padding-right: 20px;
+    }
+
+    .course-details li {
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    del {
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>أسعار الكورسات</h2>
+
+  <div class="course-card">
+    <div class="course-title">كورس المانيوال</div>
+    <div><span class="new-price">650</span> بدل من <del class="old-price">1100</del> جنيه</div>
+    <ul class="course-details">
+      <li>حصتين نظري محاكاة</li>
+      <li>خمس حصص عملي سيارة مانيوال</li>
+      <li>حصة ميكانيكا</li>
+    </ul>
+  </div>
+
+  <div class="course-card">
+    <div class="course-title">كورس الأوتوماتيك</div>
+    <div><span class="new-price">750</span> بدل من <del class="old-price">1200</del> جنيه</div>
+    <ul class="course-details">
+      <li>حصتين نظري محاكاة</li>
+      <li>خمس حصص عملي سيارة أوتوماتيك</li>
+      <li>حصة ميكانيكا</li>
+    </ul>
+  </div>
+
+  <div class="course-card">
+    <div class="course-title">كورس الميكس</div>
+    <div><span class="new-price">850</span> بدل من <del class="old-price">1300</del> جنيه</div>
+    <ul class="course-details">
+      <li>حصتين نظري محاكاة</li>
+      <li>ثلاث حصص عملي سيارة مانيوال</li>
+      <li>ثلاث حصص عملي سيارة أوتوماتيك</li>
+      <li>حصة ميكانيكا</li>
+    </ul>
+  </div>
+
+</body>
+</html>

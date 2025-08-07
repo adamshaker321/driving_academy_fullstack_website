@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>حذف عميل</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    form {
+      background-color: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 40px;
+      width: 350px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+      animation: slideFade 1.2s ease;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 28px;
+      color: #ff6666;
+    }
+
+    label h3 {
+      margin: 10px 0 5px;
+      font-size: 16px;
+      color: #e0e0e0;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: 16px;
+      margin-bottom: 20px;
+      transition: 0.3s;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      background-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 10px #ff9999;
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: #e53935;
+      color: #fff;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s ease-in-out;
+    }
+
+    input[type="submit"]:hover {
+      background: #c62828;
+      transform: scale(1.03);
+      box-shadow: 0 0 12px #ef5350;
+    }
+
+    @keyframes slideFade {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <form action="/removing" method="POST">
+    <h2>احذف عميل</h2>
+
+    <div>
+      <label><h3>Secondary Name</h3></label>
+      <input type="text" name="client_name" required placeholder="name">
+    </div>    
+
+    <div>
+      <label><h3>Password (ID)</h3></label>
+      <input type="password" name="client_id" required placeholder="password">
+    </div>
+
+    <div>
+      <label><h3>نوع الكورس</h3></label>
+      <input type="text" name="course" required placeholder="Course Name">
+    </div>
+
+    <br>
+    <input type="submit" value="🗑️ حذف العميل">
+  </form>
+
+</body>
+</html>

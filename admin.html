@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل دخول Admin</title>
+    <style>
+        body {
+            font-family: 'Tahoma', sans-serif;
+            background: #f3f6f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .admin-login-box {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #c62828;
+            margin-bottom: 20px;
+        }
+
+        label h3 {
+            margin: 10px 0 5px;
+            color: #444;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        input[type="submit"] {
+            background-color: #388e3c;
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #2e7d32;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-login-box">
+        <form action="/admin" method="POST">
+            <h2>تسجيل Admin</h2>
+
+            <div>
+                <label><h3>Admin Username</h3></label>
+                <input type="text" name="client_name" required placeholder="name">
+            </div>    
+
+            <div>
+                <label><h3>Admin Password (ID)</h3></label>
+                <input type="password" name="client_id" required placeholder="password">
+            </div>
+
+            <input type="submit" value="تسجيل الدخول">
+        </form>
+    </div>
+
+</body>
+</html>
