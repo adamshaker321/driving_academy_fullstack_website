@@ -59,6 +59,7 @@
             <th>رقم العميل</th>
             <th>الاسم</th>
             <th>الكورس</th>
+            <th>رقم الهاتف</th>
         </tr>
         {% if data_manual %}
             {% for client in data_manual %}
@@ -66,10 +67,11 @@
                 <td>{{ client[0] }}</td>
                 <td>{{ client[1] }}</td>
                 <td>{{ client[2] }}</td>
+                <td>{{ client[3] }}</td>
             </tr>
             {% endfor %}
         {% else %}
-            <tr><td colspan="3" class="no-data">لا يوجد بيانات</td></tr>
+            <tr><td colspan="4" class="no-data">لا يوجد بيانات</td></tr>
         {% endif %}
     </table>
 
@@ -79,6 +81,7 @@
             <th>رقم العميل</th>
             <th>الاسم</th>
             <th>الكورس</th>
+            <th>رقم الهاتف</th>
         </tr>
         {% if data_auto %}
             {% for client in data_auto %}
@@ -86,10 +89,11 @@
                 <td>{{ client[0] }}</td>
                 <td>{{ client[1] }}</td>
                 <td>{{ client[2] }}</td>
+                <td>{{ client[3] }}</td>
             </tr>
             {% endfor %}
         {% else %}
-            <tr><td colspan="3" class="no-data">لا يوجد بيانات</td></tr>
+            <tr><td colspan="4" class="no-data">لا يوجد بيانات</td></tr>
         {% endif %}
     </table>
 

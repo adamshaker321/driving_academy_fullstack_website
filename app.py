@@ -28,13 +28,12 @@ def dashboard():
 def offers():
     return render_template("offers.html")
 @app.route("/register",methods=['GET','POST'])
-@app.route("/register", methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         user_id = request.form['client_id']
         user_name = request.form['client_name']
         course = request.form['course']
-
+        phone=request.form['phone']
         conn = get_connection()
         cursor = conn.cursor()
 
@@ -49,8 +48,8 @@ def register():
             return redirect("/register")
         else:
             # لو مش موجود يضيفه
-            cursor.execute("INSERT INTO clients (id, `name`, course) VALUES (%s, %s, %s)", 
-                           (user_id, user_name, course))
+            cursor.execute("INSERT INTO clients (id, `name`, course , phone_number) VALUES (%s, %s, %s, %s)", 
+                           (user_id, user_name, course , phone))
             conn.commit()
             cursor.close()
             conn.close()
@@ -83,9 +82,32 @@ def removing():
             return redirect("/removing")  # أو صفحة تنبيه
 
     return render_template("removing.html")
-@app.route("/booking")
+@app.route("/booking",methods=['GET','POST'])
 def booking():
+    if request.method=='POST':
+        clients_name= request.form['client_name']
+        clients_id=request.form["client_id"]
+        clients_course=request.form["course"]
+        conn=get_connection()
+        cursor=conn.cursor()
+        cursor.execute("select * from clients")
+        rows=cursor.fetchall()
+        for row in rows:   #[row1,row2,row3]
+            if clients_id==row[0]:
+                return redirect("/time_tables")
+
+        
+
     return render_template("booking.html")
+@app.route("/time_tables")
+def time_tables():
+    return render_template("time_tables.html")
+@app.route("/manual_booking")
+def manual_booking():
+    return render_template("manual_booking.html")
+@app.route("/automatic_booking")
+def automatic_booking():
+    return render_template("automatic_booking.html")
 @app.route("/cancel_booking")
 def cancel_booking():
     return render_template("cancel_booking.html")
@@ -96,11 +118,11 @@ def clients_data():
     cursor = conn.cursor()
 
     # بيانات المانيوال
-    cursor.execute("SELECT id, name, course FROM clients WHERE course = 'مانيوال'")
+    cursor.execute("SELECT id, name, course , phone_number FROM clients WHERE course = 'مانيوال'")
     data_manual = cursor.fetchall()
 
     # بيانات الأوتوماتيك
-    cursor.execute("SELECT id, name, course FROM clients WHERE course = 'اوتوماتيك'")
+    cursor.execute("SELECT id, name, course , phone_number FROM clients WHERE course = 'اوتوماتيك'")
     data_auto = cursor.fetchall()
 
     cursor.close()
