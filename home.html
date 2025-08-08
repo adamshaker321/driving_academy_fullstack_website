@@ -127,12 +127,20 @@
             margin-top: 30px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.07);
             display: inline-block;
+            text-align: right;
         }
 
         .phone-box h3 {
-            margin: 0;
-            font-size: 20px;
+            margin: 8px 0;
+            font-size: 18px;
             color: #444;
+            display: flex;
+            align-items: center;
+        }
+
+        .phone-box h3 span.icon {
+            margin-left: 8px;
+            font-size: 20px;
         }
     </style>
 </head>
@@ -140,11 +148,10 @@
 
     <!-- Sidebar -->
     <div class="sidebar">
-        <a href="/register">🚗 تسجيل عميل</a>
-        <a href="/booking">📅 احجز معاد</a>
         <a href="/offers">📢 العروض الحالية للكورسات</a>
-        <a href="/removing">🗑️ احذف عميل</a>
-        <a href="/admin">Admin</a> <!-- السطر اللي طلبته -->
+        <a href="/booking">📅 احجز معاد</a>
+        <a href="/cancel_booking">❌ إلغاء حجز</a>
+        <a href="/admin">Admin</a>
     </div>
 
     <!-- Main Content -->
@@ -176,7 +183,8 @@
         </div>
 
         <div class="phone-box">
-            <h3>📞 أرقامنا: 01221952497 و 01018894770</h3>
+            <h3><span class="icon">📞</span>أرقامنا: 01221952497 و 01018894770</h3>
+            <h3><span class="icon">📍</span>العنوان: الشاطبي - ٣٢ شارع أريستوفان خلف محطة ترام الشبان المسلمين</h3>
         </div>
 
     </div>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بيانات العملاء</title>
+    <style>
+        body {
+            font-family: 'Tahoma', sans-serif;
+            background: #f3f6f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #388e3c;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: #388e3c;
+            color: white;
+            font-size: 16px;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #999;
+            padding: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>🚗 عملاء كورس المانيوال</h2>
+    <table>
+        <tr>
+            <th>رقم العميل</th>
+            <th>الاسم</th>
+            <th>الكورس</th>
+        </tr>
+        {% if data_manual %}
+            {% for client in data_manual %}
+            <tr>
+                <td>{{ client[0] }}</td>
+                <td>{{ client[1] }}</td>
+                <td>{{ client[2] }}</td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr><td colspan="3" class="no-data">لا يوجد بيانات</td></tr>
+        {% endif %}
+    </table>
+
+    <h2>🚙 عملاء كورس الأوتوماتيك</h2>
+    <table>
+        <tr>
+            <th>رقم العميل</th>
+            <th>الاسم</th>
+            <th>الكورس</th>
+        </tr>
+        {% if data_auto %}
+            {% for client in data_auto %}
+            <tr>
+                <td>{{ client[0] }}</td>
+                <td>{{ client[1] }}</td>
+                <td>{{ client[2] }}</td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr><td colspan="3" class="no-data">لا يوجد بيانات</td></tr>
+        {% endif %}
+    </table>
+
+</body>
+</html>
