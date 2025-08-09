@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>آراء العملاء</title>
+    <style>
+        body {
+            font-family: 'Tahoma', sans-serif;
+            background: #f8f9fa;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            direction: rtl;
+        }
+        h1 {
+            text-align: center;
+            color: #00796b;
+            margin-bottom: 30px;
+        }
+        .reviews-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .review-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+        .review-card:hover {
+            transform: translateY(-5px);
+        }
+        video, img {
+            width: 80%;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            object-fit: cover;
+        }
+        p {
+            font-size: 15px;
+            margin: 5px 0;
+            color: #444;
+        }
+        small {
+            display: block;
+            font-size: 13px;
+            color: #888;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>📢 آراء العملاء</h1>
+
+    {% if reviews %}
+        <div class="reviews-container">
+            {% for review in reviews %}
+                <div class="review-card">
+                    {% if review.file_name.endswith('.mp4') or review.file_name.endswith('.webm') %}
+                        <video controls>
+                            <source src="{{ review.file_path }}" type="video/mp4">
+                        </video>
+                    {% else %}
+                        <img src="{{ review.file_path }}" alt="صورة العميل">
+                    {% endif %}
+                    <p>{{ review.caption if review.caption else "لا يوجد وصف" }}</p>
+                    <small>📅 {{ review.publish_date }}</small>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="text-align: center;">لا توجد آراء حالياً.</p>
+    {% endif %}
+
+</body>
+</html>

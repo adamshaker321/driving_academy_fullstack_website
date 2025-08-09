@@ -1,192 +1,242 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <title>A&N Driving Academy</title>
-    <style>
-        body {
-            font-family: 'Tahoma', sans-serif;
-            background: #f3f6f9;
-            margin: 0;
-            padding: 0;
-            color: #333;
-        }
+<meta charset="UTF-8">
+<title>A&N Driving Academy</title>
+<style>
+    body {
+        font-family: 'Tahoma', sans-serif;
+        background: #f3f6f9;
+        margin: 0;
+        padding: 0;
+        color: #333;
+    }
 
-        .sidebar {
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 220px;
-            height: 100vh;
-            background-color: #263238;
-            padding-top: 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-shadow: -2px 0 6px rgba(0,0,0,0.1);
-            z-index: 100;
-        }
+    /* الشريط العلوي */
+.top-bar {
+    background-color: #263238;
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: flex-end; /* حرك التابات للشمال */
+    align-items: center;
+    gap: 15px;
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 102;
+}
 
-        .sidebar a {
-            color: white;
-            text-decoration: none;
-            margin: 15px 0;
-            padding: 12px 20px;
-            border-radius: 25px;
-            background-color: #388e3c;
-            font-weight: bold;
-            font-size: 16px;
-            width: 80%;
-            text-align: center;
-            transition: 0.3s ease;
-        }
+    .top-bar a {
+        color: white;
+        text-decoration: none;
+        font-size: 16px;
+        background: #388e3c;
+        padding: 8px 15px;
+        border-radius: 20px;
+        transition: 0.3s;
+    }
 
-        .sidebar a:hover {
-            background-color: #2e7d32;
-            transform: scale(1.05);
-        }
+    .top-bar a:hover {
+        background: #2e7d32;
+        transform: scale(1.05);
+    }
 
-        .main-content {
-            margin-right: 240px;
-            padding: 20px;
-            text-align: center;
-        }
+    /* زر الهامبورجر */
+    .menu-btn {
+        position: fixed;
+        top: 60px;
+        right: 15px;
+        z-index: 101;
+        font-size: 26px;
+        background: #388e3c;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        border: none;
+    }
 
-        h1 {
-            color: #c62828;
-            font-size: 36px;
-            margin-bottom: 10px;
-        }
+    /* الـ Sidebar */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        right: -240px;
+        width: 220px;
+        height: 100vh;
+        background-color: #263238;
+        padding-top: 60px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: -2px 0 6px rgba(0,0,0,0.1);
+        z-index: 100;
+        transition: right 0.3s ease;
+    }
 
-        h2 {
-            color: #333;
-            margin-top: 30px;
-        }
+    .sidebar.active {
+        right: 0;
+    }
 
-        ul {
-            list-style: none;
-            padding: 0;
-        }
+    .sidebar a {
+        color: white;
+        text-decoration: none;
+        margin: 15px 0;
+        padding: 12px 20px;
+        border-radius: 25px;
+        background-color: #388e3c;
+        font-weight: bold;
+        font-size: 16px;
+        width: 80%;
+        text-align: center;
+        transition: 0.3s ease;
+    }
 
-        li {
-            font-size: 20px;
-            margin: 10px 0;
-        }
+    .sidebar a:hover {
+        background-color: #2e7d32;
+        transform: scale(1.05);
+    }
 
-        img {
-            margin: 10px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
+    .main-content {
+        padding: 100px 20px 20px; /* مساحة للشريط العلوي */
+        text-align: center;
+    }
 
-        img:hover {
-            transform: scale(1.03);
-        }
+    h1 {
+        color: #c62828;
+        font-size: 36px;
+        margin-bottom: 10px;
+    }
 
-        a {
-            text-decoration: none;
-            color: #c62828;
-            font-size: 20px;
-            margin: 15px;
-            display: inline-block;
-            transition: 0.3s ease;
-        }
+    h2 {
+        color: #333;
+        margin-top: 30px;
+    }
 
-        a:hover {
-            color: #b71c1c;
-            transform: scale(1.05);
-        }
+    ul {
+        list-style: none;
+        padding: 0;
+    }
 
-        a.social-link {
-            display: inline-flex;
-            align-items: center;
-            font-size: 18px;
-            background-color: #ffffff;
-            border: 1px solid #ddd;
-            padding: 8px 15px;
-            border-radius: 30px;
-            margin: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-            transition: 0.3s ease;
-        }
+    li {
+        font-size: 20px;
+        margin: 10px 0;
+    }
 
-        a.social-link:hover {
-            background-color: #fceeee;
-            transform: scale(1.07);
-        }
+    img {
+        margin: 10px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
 
-        a.social-link img {
-            margin-left: 10px;
-        }
+    img:hover {
+        transform: scale(1.03);
+    }
 
-        .phone-box {
-            background-color: #fff;
-            border-radius: 15px;
-            padding: 15px 20px;
-            margin-top: 30px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.07);
-            display: inline-block;
-            text-align: right;
-        }
+    a.social-link {
+        display: inline-flex;
+        align-items: center;
+        font-size: 18px;
+        background-color: #ffffff;
+        border: 1px solid #ddd;
+        padding: 8px 15px;
+        border-radius: 30px;
+        margin: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        transition: 0.3s ease;
+    }
 
-        .phone-box h3 {
-            margin: 8px 0;
-            font-size: 18px;
-            color: #444;
-            display: flex;
-            align-items: center;
-        }
+    a.social-link:hover {
+        background-color: #fceeee;
+        transform: scale(1.07);
+    }
 
-        .phone-box h3 span.icon {
-            margin-left: 8px;
-            font-size: 20px;
-        }
-    </style>
+    a.social-link img {
+        margin-left: 10px;
+    }
+
+    .phone-box {
+        background-color: #fff;
+        border-radius: 15px;
+        padding: 15px 20px;
+        margin-top: 30px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.07);
+        display: inline-block;
+        text-align: right;
+    }
+
+    .phone-box h3 {
+        margin: 8px 0;
+        font-size: 18px;
+        color: #444;
+        display: flex;
+        align-items: center;
+    }
+
+    .phone-box h3 span.icon {
+        margin-left: 8px;
+        font-size: 20px;
+    }
+</style>
 </head>
 <body>
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <a href="/offers">📢 العروض الحالية للكورسات</a>
-        <a href="/booking">📅 احجز معاد</a>
-        <a href="/cancel_booking">❌ إلغاء حجز</a>
-        <a href="/admin">Admin</a>
+<!-- الشريط العلوي -->
+<div class="top-bar">
+    <a href="/offers">📢 العروض الحالية للكورسات</a>
+    <a href="/reviews">💬 آراء العملاء</a>
+    <a href="/home">🏠 الصفحة الرئيسية</a>
+
+</div>
+
+<!-- زر الثلاث شرط -->
+<button class="menu-btn" onclick="toggleSidebar()">☰</button>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <a href="/booking">📅 احجز معاد</a>
+    <a href="/cancel_booking">❌ إلغاء حجز</a>
+    <a href="/admin">⚙️ Admin</a>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <h1>A&N Driving Academy (Captain Ashraf)</h1>
+    <img src="{{ url_for('static', filename='logo.jpg') }}" width="200" alt="شعار الأكاديمية">
+
+    <h2>إنجازاتنا</h2>
+    <ul>
+        <li><strong>أكتر من 5000 متدرب ناجح 🎉</strong></li>
+        <li>مدربين محترفين</li>
+    </ul>
+
+    <img src="{{ url_for('static', filename='photo.jpg') }}" width="300" alt="صورة تدريب 1">
+
+    <div style="margin-top: 30px;">
+        <a href="https://www.facebook.com/تعليم-السواقة-Captain-Ashraf" target="_blank" class="social-link">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" width="20">
+            Captain Ashraf
+        </a>
+
+        <a href="https://www.youtube.com/@ANDriving1" target="_blank" class="social-link">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" alt="YouTube" width="28">
+            Captain Ashraf
+        </a>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-
-        <h1>A&N Driving Academy (Captain Ashraf)</h1>
-
-        <img src="{{ url_for('static', filename='logo.jpg') }}" width="200" alt="شعار الأكاديمية">
-
-        <h2>إنجازاتنا</h2>
-        <ul>
-            <li><strong>أكتر من 5000 متدرب ناجح 🎉</strong></li>
-            <li>مدربين محترفين</li>
-        </ul>
-
-        <img src="{{ url_for('static', filename='photo1.jpg') }}" width="200" alt="صورة تدريب 1">
-        <img src="{{ url_for('static', filename='photo2.jpg') }}" width="200" alt="صورة تدريب 2">
-
-        <div style="margin-top: 30px;">
-            <a href="https://www.facebook.com/تعليم-السواقة-Captain-Ashraf" target="_blank" class="social-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" width="20">
-                Captain Ashraf
-            </a>
-
-            <a href="https://www.youtube.com/@ANDriving1" target="_blank" class="social-link">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" alt="YouTube" width="28">
-                Captain Ashraf
-            </a>
-        </div>
-
-        <div class="phone-box">
-            <h3><span class="icon">📞</span>أرقام التواصل: 01221952497 و 01018894770</h3>
-            <h3><span class="icon">📍</span>العنوان: الشاطبي - ٣٢ شارع أريستوفان خلف محطة ترام الشبان المسلمين</h3>
-        </div>
-
+    <div class="phone-box">
+        <h3><span class="icon">📞</span>أرقام التواصل: 01221952497 و 01018894770</h3>
+        <h3><span class="icon">📍</span>العنوان: الشاطبي - ٣٢ شارع أريستوفان خلف محطة ترام الشبان المسلمين</h3>
     </div>
+</div>
+
+<script>
+    function toggleSidebar() {
+        document.getElementById("sidebar").classList.toggle("active");
+    }
+</script>
+
 </body>
 </html>

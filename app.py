@@ -1,5 +1,7 @@
-
-from flask import Flask,render_template,redirect,request
+import os
+import datetime
+from flask import Flask,render_template,redirect,request,url_for
+from werkzeug.utils import secure_filename
 from db_config import get_connection
 app = Flask(__name__)
 
@@ -96,8 +98,6 @@ def booking():
             if clients_id==row[0]:
                 return redirect("/time_tables")
 
-        
-
     return render_template("booking.html")
 @app.route("/time_tables")
 def time_tables():
@@ -129,5 +129,80 @@ def clients_data():
     conn.close()
 
     return render_template("clients_data.html", data_manual=data_manual, data_auto=data_auto)
+UPLOAD_FOLDER = os.path.join("static", "files")
+@app.route("/add_review",methods=["GET","POST"])
+def add_review():
+
+    if request.method == "POST":
+        file = request.files['file']
+        caption = request.form.get('description', '')
+
+        if file:
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(UPLOAD_FOLDER, filename)
+
+            # حفظ الملف في فولدر static
+            file.save(file_path)
+
+            # تخزين البيانات في قاعدة البيانات
+            conn = get_connection()
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO file_reviews (file_name, file_path, caption, publish_date)
+                VALUES (%s, %s, %s, %s)
+            """, (filename, f"static/files/{filename}", caption,datetime.datetime.today()))
+            conn.commit()
+            cursor.close()
+            conn.close()
+
+            return redirect(url_for("dashboard"))
+
+    return render_template("add_review.html")
+@app.route("/reviews")
+def reviews():
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM file_reviews ORDER BY publish_date DESC")
+    reviews = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return render_template("reviews.html", reviews=reviews)
+@app.route("/remove_review",methods=["GET","POST"])
+def remove_review():
+    if request.method == "POST":
+        filename = request.form['filename']
+
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        #validation
+        cursor.execute("SELECT file_path FROM file_reviews WHERE file_name = %s", (filename,))
+        file_data = cursor.fetchone()
+
+        if file_data:
+            file_path = file_data[0]
+
+            
+            cursor.execute("DELETE FROM file_reviews WHERE file_name = %s", (filename,))
+            conn.commit()
+            cursor.close()
+            conn.close()
+
+            
+            full_path = os.path.join(os.getcwd(), file_path)
+            if os.path.exists(full_path):
+                os.remove(full_path)
+
+            return redirect(url_for("dashboard"))
+        else:
+            cursor.close()
+            conn.close()
+            return "❌ الملف غير موجود", 404
+
+    return render_template("remove_review.html")    
+
+    
+    return render_template("remove_review.html")
 if __name__=="__main__":
     app.run(debug=True)
