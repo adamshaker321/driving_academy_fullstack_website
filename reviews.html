@@ -1,60 +1,144 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <title>آراء العملاء</title>
-    <style>
-        body {
-            font-family: 'Tahoma', sans-serif;
-            background: #f8f9fa;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-            direction: rtl;
-        }
-        h1 {
-            text-align: center;
-            color: #00796b;
-            margin-bottom: 30px;
-        }
-        .reviews-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
-        .review-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            padding: 15px;
-            text-align: center;
-            transition: transform 0.2s ease;
-        }
-        .review-card:hover {
-            transform: translateY(-5px);
-        }
-        video, img {
-            width: 80%;
-            max-height: 200px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            object-fit: cover;
-        }
-        p {
-            font-size: 15px;
-            margin: 5px 0;
-            color: #444;
-        }
-        small {
-            display: block;
-            font-size: 13px;
-            color: #888;
-            margin-top: 5px;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>آراء العملاء</title>
+<style>
+    body {
+        font-family: 'Tahoma', sans-serif;
+        background: #f8f9fa;
+        color: #333;
+        margin: 0;
+        padding: 0;
+        direction: rtl;
+    }
+
+    /* الشريط العلوي */
+    .top-bar {
+        background-color: #263238;
+        color: white;
+        padding: 10px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 0;
+        z-index: 102;
+    }
+
+    .top-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .top-left img {
+        width: 50px;
+        height: auto;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .top-left h1 {
+        font-size: 18px;
+        margin: 0;
+        color: white;
+        white-space: nowrap;
+    }
+
+    .top-links {
+        display: flex;
+        gap: 10px;
+    }
+
+    .top-links a {
+        color: white;
+        text-decoration: none;
+        font-size: 16px;
+        background: #388e3c;
+        padding: 8px 15px;
+        border-radius: 20px;
+        transition: 0.3s;
+    }
+
+    .top-links a:hover {
+        background: #2e7d32;
+        transform: scale(1.05);
+    }
+
+    /* محتوى الصفحة */
+    .main-content {
+        padding: 100px 20px 20px;
+    }
+
+    h1 {
+        text-align: center;
+        color: #00796b;
+        margin-bottom: 30px;
+    }
+
+    .reviews-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+    }
+
+    .review-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        padding: 15px;
+        text-align: center;
+        transition: transform 0.2s ease;
+    }
+
+    .review-card:hover {
+        transform: translateY(-5px);
+    }
+
+    video, img {
+        width: 80%;
+        max-height: 200px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        object-fit: cover;
+    }
+
+    p {
+        font-size: 15px;
+        margin: 5px 0;
+        color: #444;
+    }
+
+    small {
+        display: block;
+        font-size: 13px;
+        color: #888;
+        margin-top: 5px;
+    }
+</style>
 </head>
 <body>
 
+<!-- الشريط العلوي -->
+<div class="top-bar">
+    <div class="top-left">
+        <a href="/home">
+            <img src="{{ url_for('static', filename='logo.jpg') }}" alt="شعار الأكاديمية">
+        </a>
+        <h1>A&N Driving Academy (Captain Ashraf)</h1>
+    </div>
+    <div class="top-links">
+        <a href="/offers">📢 العروض الحالية للكورسات</a>
+        <a href="/reviews">💬 آراء العملاء</a>
+        <a href="/home">🏠 الصفحة الرئيسية</a>
+    </div>
+</div>
+
+<!-- المحتوى -->
+<div class="main-content">
     <h1>📢 آراء العملاء</h1>
 
     {% if reviews %}
@@ -76,6 +160,7 @@
     {% else %}
         <p style="text-align: center;">لا توجد آراء حالياً.</p>
     {% endif %}
+</div>
 
 </body>
 </html>
