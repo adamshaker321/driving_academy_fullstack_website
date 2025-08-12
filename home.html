@@ -7,7 +7,7 @@
 <style>
     body {
         font-family: 'Tahoma', sans-serif;
-        background: rgba(20, 20, 20, 0.85) url("{{ url_for('static', filename='background.png') }}") no-repeat center center fixed;
+        background: rgba(20, 20, 20, 0.85) url("{{ url_for('static', filename='background.jpg') }}") no-repeat center center fixed;
         background-blend-mode: darken;
         background-size: cover;
         margin: 0;
@@ -123,9 +123,10 @@
 
     .main-content {
         padding: 120px 20px 20px;
-        text-align: center;
+        text-align: left;
+        font-size: 30px;
         min-height: 70vh;
-        animation: fadeInUp 1s ease-in-out;
+        animation: fadeInUp 3s ease-in-out;
     }
 
     @keyframes fadeInUp {
@@ -168,6 +169,7 @@
         flex: 1;
         max-width: 250px;
         box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    
     }
 
     .contact-box h3 {
@@ -226,17 +228,17 @@
 
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
-    <a href="/booking">📅 احجز معاد</a>
-    <a href="/cancel_booking">❌ إلغاء حجز</a>
+    <a href="/booking">📅 حجزالمواعيد</a>
     <a href="/admin">⚙️ Admin</a>
 </div>
 
 <!-- المحتوى -->
 <div class="main-content">
-    <h2>إنجازاتنا</h2>
+    
     <ul style="list-style: none; padding: 0;">
-        <li><strong>أكتر من 5000 متدرب ناجح 🎉</strong></li>
-        <li>مدربين محترفين</li>
+        <li><strong>أكتر من 5000 متدرب ناجح</strong></li>
+        <li><strong>مدربين محترفين</strong></li>
+        <li><strong>خبرة 10 اعوام في تعليم القيادة</strong></li>
     </ul>
 </div>
 

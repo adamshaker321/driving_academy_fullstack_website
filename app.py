@@ -15,13 +15,15 @@ def admin():
         admin_name=request.form['Admin_name']
         conn=get_connection()
         cursor=conn.cursor()
-        cursor.execute("select admin_id from admins")
+        cursor.execute("select admin_id ,admin_name from admins")
         rows=cursor.fetchall()
         for row in rows:
-            if admin_id ==row[0]:
+            if admin_id ==row[0] and admin_name == row[1]:
                 return redirect("/dashboard")
             else:
                 return redirect("/admin")
+        cursor.close()
+        conn.close()    
     return render_template("admin.html")
 @app.route("/dashboard")
 def dashboard():
@@ -34,7 +36,7 @@ def register():
     if request.method == 'POST':
         user_id = request.form['client_id']
         user_name = request.form['client_name']
-        course = request.form['course']
+        course = request.form.get('course')
         phone=request.form['phone']
         conn = get_connection()
         cursor = conn.cursor()
@@ -86,43 +88,48 @@ def removing():
     return render_template("removing.html")
 @app.route("/booking",methods=['GET','POST'])
 def booking():
-    if request.method=='POST':
-        clients_name= request.form['client_name']
-        clients_id=request.form["client_id"]
-        clients_course=request.form["course"]
-        conn=get_connection()
-        cursor=conn.cursor()
-        cursor.execute("select * from clients")
-        rows=cursor.fetchall()
-        for row in rows:   #[row1,row2,row3]
-            if clients_id==row[0]:
-                return redirect("/time_tables")
+    if request.method == 'POST':
+        clients_id = request.form["client_id"]
+        clients_course = request.form.get('course')
+        
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT id FROM clients WHERE id=%s", (clients_id,))
+        row = cursor.fetchone()
+        
+        if row:
+            cursor.close()
+            conn.close()
+            if clients_course == 'manual':
+                return redirect("/manual_booking")
+            elif clients_course == 'automatic':
+                return redirect("/automatic_booking")
+        else:
+            cursor.close()
+            conn.close()
+            return redirect("/booking")
 
+
+        
     return render_template("booking.html")
-@app.route("/time_tables")
-def time_tables():
-    return render_template("time_tables.html")
 @app.route("/manual_booking")
 def manual_booking():
     return render_template("manual_booking.html")
 @app.route("/automatic_booking")
 def automatic_booking():
     return render_template("automatic_booking.html")
-@app.route("/cancel_booking")
-def cancel_booking():
-    return render_template("cancel_booking.html")
-
 @app.route("/clients_data")
 def clients_data():
     conn = get_connection()
     cursor = conn.cursor()
 
     # بيانات المانيوال
-    cursor.execute("SELECT id, name, course , phone_number FROM clients WHERE course = 'مانيوال'")
+    cursor.execute("SELECT id, name, course , phone_number FROM clients WHERE course = 'manual'")
     data_manual = cursor.fetchall()
 
     # بيانات الأوتوماتيك
-    cursor.execute("SELECT id, name, course , phone_number FROM clients WHERE course = 'اوتوماتيك'")
+    cursor.execute("SELECT id, name, course , phone_number FROM clients WHERE course = 'automatic'")
     data_auto = cursor.fetchall()
 
     cursor.close()
@@ -206,3 +213,4 @@ def remove_review():
     return render_template("remove_review.html")
 if __name__=="__main__":
     app.run(debug=True)
+    

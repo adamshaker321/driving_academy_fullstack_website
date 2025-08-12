@@ -1,82 +1,14 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <title>أسعار الكورسات</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f6f8fa;
-      color: #333;
-      margin: 0;
-      padding: 0;
-    }
+{% extends "base.html" %}
 
-    /* الشريط العلوي */
-    .top-bar {
-      background-color: #263238;
-      color: white;
-      padding: 10px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: fixed;
-      top: 0;
-      right: 0;
-      left: 0;
-      z-index: 102;
-    }
+{% block title %}أسعار الكورسات{% endblock %}
 
-    .top-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .top-left img {
-      width: 50px;
-      height: auto;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .top-left span {
-      font-size: 18px;
-      font-weight: bold; /* نفس السمك اللي في home */
-      white-space: nowrap;
-    }
-
-    .top-links {
-      display: flex;
-      gap: 10px;
-    }
-
-    .top-links a {
-      color: white;
-      text-decoration: none;
-      font-size: 16px;
-      background: #388e3c;
-      padding: 8px 15px;
-      border-radius: 20px;
-      transition: 0.3s;
-    }
-
-    .top-links a:hover {
-      background: #2e7d32;
-      transform: scale(1.05);
-    }
-
-    /* محتوى الصفحة */
-    .main-content {
-      padding: 100px 20px 20px;
-    }
-
+{% block styles %}
+<style>
     h2 {
       text-align: center;
       color: #444;
       margin-bottom: 40px;
     }
-
     .course-card {
       background-color: #ffffff;
       border: 1px solid #ddd;
@@ -86,68 +18,44 @@
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
       transition: 0.3s;
     }
-
     .course-card:hover {
       transform: scale(1.01);
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
     }
-
     .course-title {
       font-size: 20px;
       font-weight: bold;
       color: #2b6777;
       margin-bottom: 10px;
     }
-
     .old-price {
       color: #999;
       font-size: 16px;
       margin-right: 10px;
     }
-
     .new-price {
       color: #52ab98;
       font-size: 22px;
       font-weight: bold;
     }
-
     .course-details {
       margin-top: 15px;
       padding-right: 20px;
     }
-
     .course-details li {
       margin-bottom: 8px;
       font-size: 16px;
     }
-
     del {
       color: #888;
     }
-  </style>
-</head>
-<body>
+</style>
+{% endblock %}
 
-<!-- الشريط العلوي -->
-<div class="top-bar">
-  <div class="top-left">
-    <a href="/home">
-      <img src="{{ url_for('static', filename='logo.jpg') }}" alt="شعار الأكاديمية">
-    </a>
-    <span>A&N Driving Academy (Captain Ashraf)</span>
-  </div>
-  <div class="top-links">
-    <a href="/offers">📢 العروض الحالية للكورسات</a>
-    <a href="/reviews">💬 آراء العملاء</a>
-    <a href="/home">🏠 الصفحة الرئيسية</a>
-  </div>
-</div>
+{% block content %}
+<h2>أسعار الكورسات</h2>
 
-<!-- المحتوى -->
-<div class="main-content">
-  <h2>أسعار الكورسات</h2>
-
-  <div class="course-card">
+<div class="course-card">
     <div class="course-title">كورس المانيوال</div>
     <div><span class="new-price">650</span> بدل من <del class="old-price">1100</del> جنيه</div>
     <ul class="course-details">
@@ -155,9 +63,9 @@
       <li>خمس حصص عملي سيارة مانيوال</li>
       <li>حصة ميكانيكا</li>
     </ul>
-  </div>
+</div>
 
-  <div class="course-card">
+<div class="course-card">
     <div class="course-title">كورس الأوتوماتيك</div>
     <div><span class="new-price">750</span> بدل من <del class="old-price">1200</del> جنيه</div>
     <ul class="course-details">
@@ -165,9 +73,9 @@
       <li>خمس حصص عملي سيارة أوتوماتيك</li>
       <li>حصة ميكانيكا</li>
     </ul>
-  </div>
+</div>
 
-  <div class="course-card">
+<div class="course-card">
     <div class="course-title">كورس الميكس</div>
     <div><span class="new-price">850</span> بدل من <del class="old-price">1300</del> جنيه</div>
     <ul class="course-details">
@@ -176,8 +84,5 @@
       <li>ثلاث حصص عملي سيارة أوتوماتيك</li>
       <li>حصة ميكانيكا</li>
     </ul>
-  </div>
 </div>
-
-</body>
-</html>
+{% endblock %}

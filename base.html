@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>{% block title %}A&N Driving Academy{% endblock %}</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+    body {
+        margin: 0;
+        font-family: Tahoma, sans-serif;
+        background: #f8f9fa;
+    }
+
+    /* Top Bar */
+    .top-bar {
+        background-color: rgba(38, 50, 56, 0.9);
+        color: white;
+        padding: 10px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 0;
+        z-index: 102;
+    }
+    .top-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .top-left img {
+        width: 50px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .top-left h1 {
+        font-size: 18px;
+        margin: 0;
+        white-space: nowrap;
+    }
+    .top-links {
+        display: flex;
+        gap: 10px;
+    }
+    .top-links a {
+        color: white;
+        text-decoration: none;
+        font-size: 16px;
+        background: #388e3c;
+        padding: 8px 15px;
+        border-radius: 20px;
+        transition: 0.3s;
+    }
+    .top-links a:hover {
+        background: #2e7d32;
+        transform: scale(1.05);
+    }
+
+    /* Sidebar */
+    .menu-btn {
+        position: fixed;
+        top: 70px;
+        right: 15px;
+        z-index: 101;
+        font-size: 26px;
+        background: #388e3c;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        border: none;
+    }
+    .sidebar {
+        position: fixed;
+        top: 0;
+        right: -240px;
+        width: 220px;
+        height: 100vh;
+        background-color: rgba(38, 50, 56, 0.95);
+        padding-top: 100px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 100;
+        transition: right 0.3s ease;
+    }
+    .sidebar.active {
+        right: 0;
+    }
+    .sidebar a {
+        color: white;
+        text-decoration: none;
+        margin: 15px 0;
+        padding: 12px 20px;
+        border-radius: 25px;
+        background-color: #388e3c;
+        font-weight: bold;
+        font-size: 16px;
+        width: 80%;
+        text-align: center;
+        transition: 0.3s ease;
+    }
+    .sidebar a:hover {
+        background-color: #2e7d32;
+        transform: scale(1.05);
+    }
+
+    /* Page content padding */
+    .main-content {
+        padding: 120px 20px 20px;
+        min-height: 70vh;
+    }
+</style>
+
+{% block styles %}{% endblock %}
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="top-bar">
+    <div class="top-left">
+        <a href="/home">
+            <img src="{{ url_for('static', filename='logo.jpg') }}" alt="شعار الأكاديمية">
+        </a>
+        <h1>A&N Driving Academy (Captain Ashraf)</h1>
+    </div>
+    <div class="top-links">
+        <a href="#contact">📞 Contact Us</a>
+        <a href="/reviews">💬 آراء العملاء</a>
+        <a href="/offers">📢 العروض الحالية للكورسات</a>
+        <a href="/home">🏠 الصفحة الرئيسية</a>
+    </div>
+</div>
+
+<!-- Sidebar Button -->
+<button class="menu-btn" onclick="toggleSidebar()">☰</button>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <a href="/booking">📅حجز المواعيد</a>
+    <a href="/admin">⚙️ Admin</a>
+</div>
+
+<!-- Page Content -->
+<div class="main-content">
+    {% block content %}{% endblock %}
+</div>
+
+<script>
+    function toggleSidebar() {
+        document.getElementById("sidebar").classList.toggle("active");
+    }
+</script>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>
