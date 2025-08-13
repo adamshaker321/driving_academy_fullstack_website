@@ -4,130 +4,92 @@
 
 {% block styles %}
 <style>
-  h1 {
-    text-align: center;
-    color: black;
-    margin-top: 50px;
-  }
-  .table {
-    height: 200px;
-    width: 100%;
-    border-collapse: collapse;
-    border-color: bisque;
-    font-size: 18px; /* تكبير الخط */
-
-  }
-  .table th , .table td{
-padding: 12px;
-text-align: center;
-
-  }
+  h1 { text-align: center; color: black; margin-top: 50px; }
+  .table { width: 100%; border-collapse: collapse; font-size: 18px; }
+  .table th, .table td { padding: 12px; text-align: center; border: 1px solid #ccc; }
+  .book-btn { background-color: green; color: white; padding: 6px 10px; border: none; cursor: pointer; border-radius: 5px; }
+  .popup-form { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 1000; }
+  .popup-form input { display: block; width: 100%; padding: 8px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; }
+  .close-btn { background: red; color: white; padding: 5px 10px; border: none; cursor: pointer; float: right; border-radius: 5px; }
+  .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 999; }
+  .booked { color: red; font-weight: bold; }
+  .alert-message { color: red; font-weight: bold; text-align: center; margin-bottom: 15px; padding: 10px; background: #ffe5e5; border: 1px solid red; border-radius: 5px; width: 60%; margin-left: auto; margin-right: auto; }
 </style>
 {% endblock %}
 
 {% block content %}
 <h1>جدول المانيوال</h1>
+
+{% if message %}
+  <div class="alert-message">{{ message }}</div>
+{% endif %}
+
+<div class="overlay" id="overlay"></div>
+
+<div class="popup-form" id="popupForm">
+  <button class="close-btn" onclick="closeForm()">X</button>
+  <h3>احجز المعاد</h3>
+  <form id="bookingForm" method="POST" action="/manual_booking">
+    <input type="text" name="name" placeholder="الاسم" required>
+    <input type="password" name="password" placeholder="ID" required>
+    <input type="text" name="session_day_hour" id="sessionDayHour" readonly>
+    <input type="tel" name="phone" placeholder="رقم الهاتف" required>
+    <input type="submit" value="حجز">
+  </form>
+</div>
+
 <div class="table">
-<table border="1">
+<table>
 <tr>
-    <th></th>
-    <th colspan="3">السبت</th>
-    <th colspan="3">الاحد</th>
-    <th colspan="3">الاثنين</th>
-    <th colspan="3">الثلاثاء</th>
-    <th colspan="3">الاربعاء</th>
-    <th colspan="3">الخميس</th>
+    <th>الساعة</th>
+    <th>السبت</th>
+    <th>الأحد</th>
+    <th>الاثنين</th>
+    <th>الثلاثاء</th>
+    <th>الأربعاء</th>
+    <th>الخميس</th>
 </tr>
+{% for hour in ["10 ص","11 ص","12 م","1 م","2 م","3 م","4 م","5 م","6 م","7 م"] %}
 <tr>
-    <td>الساعة 10 ص</td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
+    <td>الساعة {{ hour }}</td>
+    {% for day in ["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"] %}
+        {% set day_hour_label = "يوم " ~ day ~ " الساعة " ~ hour %}
+
+        {# تحديد عدد الخانات حسب الشرط #}
+        {% if (hour in ["10 ص", "11 ص", "12 م", "1 م"]) and (day in ["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"]) %}
+            {% set num_cells = 2 %}
+        {% else %}
+            {% set num_cells = 3 %}
+        {% endif %}
+
+        <td>
+            {% for i in range(num_cells) %}
+                {% set slot_label = day_hour_label %}
+                {% set booked_count = booked_slots_count.get(slot_label, 0) %}
+                {% if i < booked_count %}
+                    <span class="booked">محجوز</span>
+                {% else %}
+                    <button class="book-btn" onclick="openForm('{{ slot_label }}')">احجز</button>
+                {% endif %}
+                <br>
+            {% endfor %}
+        </td>
+    {% endfor %}
 </tr>
-<tr>
-    <td>الساعة 11 ص</td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-</tr>
-<tr>
-    <td>الساعة 12 م</td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-</tr>
-<tr>
-    <td>الساعة 1 م</td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-</tr>
-<tr>
-    <td>الساعة 2 م</td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-</tr>
-<tr>
-    <td>الساعة 3 م</td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-</tr>
-<tr>
-    <td>الساعة 4 م</td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-</tr>
-<tr>
-    <td>الساعة 5 م</td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-</tr>
-<tr>
-    <td>الساعة 6 م</td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-</tr>
-<tr>
-    <td>الساعة 7 م</td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-    <td></td><td></td><td></td>
-</tr>
+{% endfor %}
 </table>
 </div>
+
+<script>
+function openForm(dayHour) {
+  document.getElementById("overlay").style.display = "block";
+  document.getElementById("popupForm").style.display = "block";
+  document.getElementById("sessionDayHour").value = dayHour;
+}
+function closeForm() {
+  document.getElementById("overlay").style.display = "none";
+  document.getElementById("popupForm").style.display = "none";
+}
+</script>
+
 {% endblock %}

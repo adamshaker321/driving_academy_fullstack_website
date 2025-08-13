@@ -1,8 +1,8 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-  <meta charset="UTF-8">
-  <title>حذف عميل</title>
+{% extends "base.html" %}
+
+{% block title %}حذف عميل{% endblock %}
+
+{% block styles %}
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -30,7 +30,7 @@
       text-align: center;
       margin-bottom: 30px;
       font-size: 28px;
-      color: #ff6666;
+      color: #00e6e6;
     }
 
     label h3 {
@@ -54,7 +54,7 @@
     input[type="password"]:focus {
       outline: none;
       background-color: rgba(255, 255, 255, 0.2);
-      box-shadow: 0 0 10px #ff9999;
+      box-shadow: 0 0 10px #00e6e6;
     }
 
     input[type="submit"] {
@@ -62,8 +62,8 @@
       padding: 12px;
       border: none;
       border-radius: 10px;
-      background: #e53935;
-      color: #fff;
+      background: #00e6e6;
+      color: #000;
       font-size: 18px;
       font-weight: bold;
       cursor: pointer;
@@ -71,9 +71,9 @@
     }
 
     input[type="submit"]:hover {
-      background: #c62828;
+      background: #00e6e6;
       transform: scale(1.03);
-      box-shadow: 0 0 12px #ef5350;
+      box-shadow: 0 0 12px #00e6e6;
     }
 
     @keyframes slideFade {
@@ -87,20 +87,22 @@
       }
     }
   </style>
-</head>
-<body>
-
+  {% endblock %}
+{% block content %}
   <form action="/removing" method="POST">
     <h2>احذف عميل</h2>
 
     <div>
       <label><h3>رقم العميل (ID)</h3></label>
       <input type="password" name="client_id" required placeholder="أدخل رقم العميل">
+{% if message %}
+  <p style="color: red; text-align:center; font-weight:bold;">{{ message }}</p>
+{% endif %}
+
     </div>
 
     <br>
     <input type="submit" value="🗑️ حذف العميل">
   </form>
 
-</body>
-</html>
+{%endblock%}

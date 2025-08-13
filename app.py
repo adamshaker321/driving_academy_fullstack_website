@@ -10,6 +10,7 @@ def home():
     return render_template("home.html")
 @app.route("/admin",methods=['GET','POST'])
 def admin():
+    message=False
     if request.method=='POST':
         admin_id=request.form['Admin_id']
         admin_name=request.form['Admin_name']
@@ -20,8 +21,10 @@ def admin():
         for row in rows:
             if admin_id ==row[0] and admin_name == row[1]:
                 return redirect("/dashboard")
-            else:
-                return redirect("/admin")
+            else:                
+                message='⚠️ ادخل رمز ومستخدم صحيحين '
+                return render_template("admin.html",message=message)
+
         cursor.close()
         conn.close()    
     return render_template("admin.html")
@@ -33,6 +36,7 @@ def offers():
     return render_template("offers.html")
 @app.route("/register",methods=['GET','POST'])
 def register():
+    message=False
     if request.method == 'POST':
         user_id = request.form['client_id']
         user_name = request.form['client_name']
@@ -46,10 +50,11 @@ def register():
         existing_client = cursor.fetchone()
 
         if existing_client:
+            message='رمز ال id مستخدم بالفعل'
             # لو موجود يرجعه لنفس الصفحة
             cursor.close()
             conn.close()
-            return redirect("/register")
+            return render_template("register.html",message=message)
         else:
             # لو مش موجود يضيفه
             cursor.execute("INSERT INTO clients (id, `name`, course , phone_number) VALUES (%s, %s, %s, %s)", 
@@ -62,6 +67,7 @@ def register():
     return render_template("register.html")
 @app.route("/removing", methods=['GET', 'POST'])
 def removing():
+    message=False
     if request.method == "POST":
         user_id = request.form['client_id']
 
@@ -81,13 +87,15 @@ def removing():
             return redirect("/dashboard")
         else:
             # لو العميل مش موجود
+            message='العميل لم يكن مسجل بالفعل !'
             cursor.close()
             conn.close()
-            return redirect("/removing")  # أو صفحة تنبيه
+            return render_template("removing.html",message=message)  # أو صفحة تنبيه
 
     return render_template("removing.html")
 @app.route("/booking",methods=['GET','POST'])
 def booking():
+    message=False
     if request.method == 'POST':
         clients_id = request.form["client_id"]
         clients_course = request.form.get('course')
@@ -95,30 +103,179 @@ def booking():
         conn = get_connection()
         cursor = conn.cursor()
         
-        cursor.execute("SELECT id FROM clients WHERE id=%s", (clients_id,))
+        cursor.execute("SELECT id ,course FROM clients WHERE id=%s", (clients_id,))
         row = cursor.fetchone()
         
         if row:
             cursor.close()
             conn.close()
-            if clients_course == 'manual':
+            
+            if row[1] == 'manual':
                 return redirect("/manual_booking")
-            elif clients_course == 'automatic':
+            elif row[1] == 'automatic':
                 return redirect("/automatic_booking")
+            elif row[1] =='mix':
+                if clients_course=='manual':
+                    return redirect("/manual_booking")
+                elif clients_course=='automatic':
+                    return redirect("/automatic_booking")
         else:
+
             cursor.close()
             conn.close()
-            return redirect("/booking")
+            message='⚠️ ادخل رمز صحيح '
+            return render_template("booking.html",message=message)
 
 
         
-    return render_template("booking.html")
-@app.route("/manual_booking")
+    return render_template("booking.html",message=message)
+
+
+
+
+
+
+
+@app.route("/manual_booking", methods=["GET", "POST"])
 def manual_booking():
-    return render_template("manual_booking.html")
-@app.route("/automatic_booking")
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    message = None  
+
+    if request.method == 'POST':
+        client_name = request.form['name']                
+        client_id = request.form['password']              
+        session_date = request.form['session_day_hour']   
+        phone_number = request.form['phone']              
+
+        # تحديد الحد الأقصى لكل سلوط
+        MAX_CAPACITY = 3  
+
+        # عدد الحجوزات في نفس اليوم والساعة
+        cursor.execute("""
+            SELECT COUNT(*) FROM client_manual_sessions
+            WHERE session_day = %s
+        """, (session_date,))
+        current_bookings = cursor.fetchone()[0]
+
+        if current_bookings >= MAX_CAPACITY:
+            message = "⚠ المعاد ده اتحجز بالكامل."
+        else:
+            # التأكد إن العميل مايحجزش نفس المعاد مرتين
+            cursor.execute("""
+                SELECT COUNT(*) FROM client_manual_sessions
+                WHERE id = %s AND session_day = %s
+            """, (client_id, session_date))
+            already_booked = cursor.fetchone()[0] > 0
+
+            if already_booked:
+                message = "⚠ انت حجزت المعاد ده قبل كده."
+            else:
+                # التأكد إن العميل موجود
+                cursor.execute("SELECT id FROM clients WHERE id = %s", (client_id,))
+                client_exists = cursor.fetchone()
+
+                if client_exists:
+                    cursor.execute("""
+                        INSERT INTO client_manual_sessions (id, client_name, phone, session_day, book_date)
+                        VALUES (%s, %s, %s, %s, %s)
+                    """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))
+                    conn.commit()
+                    message = "✅ تم الحجز بنجاح."
+                else:
+                    message = "⚠ العميل غير موجود."
+
+    # جلب المواعيد المحجوزة (مع العدد)
+    cursor.execute("SELECT session_day, COUNT(*) FROM client_manual_sessions GROUP BY session_day")
+    booked_slots_count = {row[0]: row[1] for row in cursor.fetchall()}
+
+    cursor.close()
+    conn.close()
+
+    return render_template(
+        "manual_booking.html",
+        booked_slots_count=booked_slots_count,
+        message=message
+    )
+
+
+
+
+
+
+
+@app.route("/automatic_booking", methods=["GET", "POST"])
 def automatic_booking():
-    return render_template("automatic_booking.html")
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    message = None  
+
+    if request.method == 'POST':
+        client_name = request.form['name']                
+        client_id = request.form['password']              
+        session_date = request.form['session_day_hour']   # جملة زي "يوم الأحد الساعة 10 ص"
+        phone_number = request.form['phone']              
+
+        # السعة القصوى لكل Slot = 2
+        MAX_CAPACITY = 2  
+
+        # عدد الحجوزات الحالية في نفس المعاد
+        cursor.execute("""
+            SELECT COUNT(*) FROM client_automatic_sessions
+            WHERE session_day = %s
+        """, (session_date,))
+        current_bookings = cursor.fetchone()[0]
+
+        if current_bookings >= MAX_CAPACITY:
+            message = "⚠ المعاد ده اتحجز بالكامل."
+        else:
+            # التأكد إن العميل مايحجزش نفس المعاد مرتين
+            cursor.execute("""
+                SELECT COUNT(*) FROM client_automatic_sessions
+                WHERE id = %s AND session_day = %s
+            """, (client_id, session_date))
+            already_booked = cursor.fetchone()[0] > 0
+
+            if already_booked:
+                message = "⚠ انت حجزت المعاد ده قبل كده."
+            else:
+                # التأكد إن العميل موجود في جدول clients
+                cursor.execute("SELECT id FROM clients WHERE id = %s", (client_id,))
+                client_exists = cursor.fetchone()
+
+                if client_exists:
+                    cursor.execute("""
+                        INSERT INTO client_automatic_sessions (id, client_name, phone, session_day, book_date)
+                        VALUES (%s, %s, %s, %s, %s)
+                    """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))
+                    conn.commit()
+                    message = "✅ تم الحجز بنجاح."
+                else:
+                    message = "⚠ العميل غير موجود."
+
+    # جلب المواعيد المحجوزة (مع العدد)
+    cursor.execute("SELECT session_day, COUNT(*) FROM client_automatic_sessions GROUP BY session_day")
+    booked_slots_count = {row[0]: row[1] for row in cursor.fetchall()}
+
+    cursor.close()
+    conn.close()
+
+    return render_template(
+        "automatic_booking.html",
+        booked_slots_count=booked_slots_count,
+        message=message
+    )
+
+
+
+
+
+
+
+
+
 @app.route("/clients_data")
 def clients_data():
     conn = get_connection()
@@ -131,11 +288,15 @@ def clients_data():
     # بيانات الأوتوماتيك
     cursor.execute("SELECT id, name, course , phone_number FROM clients WHERE course = 'automatic'")
     data_auto = cursor.fetchall()
+    
+    # بيانات الميكس
+    cursor.execute("SELECT id, name, course , phone_number FROM clients WHERE course = 'mix'")
+    data_mix = cursor.fetchall()
 
     cursor.close()
     conn.close()
 
-    return render_template("clients_data.html", data_manual=data_manual, data_auto=data_auto)
+    return render_template("clients_data.html", data_manual=data_manual, data_auto=data_auto , data_mix=data_mix)
 UPLOAD_FOLDER = os.path.join("static", "files")
 @app.route("/add_review",methods=["GET","POST"])
 def add_review():
@@ -210,7 +371,6 @@ def remove_review():
     return render_template("remove_review.html")    
 
     
-    return render_template("remove_review.html")
 if __name__=="__main__":
     app.run(debug=True)
     

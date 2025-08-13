@@ -97,14 +97,18 @@
   </div>
 
   <div>
-    <label><h3>حصة مانيوال</h3></label>
-    <input type="radio" name="course" value="manual">
+    <label><h3>(لو ميكس)حصة مانيوال</h3></label>
+    <input type="radio" name="course"  value="manual">
     
-    <label><h3>حصة اوتوماتيك</h3></label>
-    <input type="radio" name="course" value="automatic">
+    <label><h3>(لو ميكس)حصة اوتوماتيك</h3></label>
+    <input type="radio" name="course"  value="automatic">
   </div>
 
   <br>
   <input type="submit" value="submit">
 </form>
+{% if message %}
+  <p style="color: red; text-align:center; font-weight:bold;">{{ message }}</p>
+{% endif %}
+
 {% endblock %}

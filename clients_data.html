@@ -1,12 +1,10 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بيانات العملاء</title>
-    <style>
+{% extends "base.html" %}
 
-body {
+{% block title %}احجز معاد{% endblock %}
+
+{% block styles %}
+    <style>
+        body {
             font-family: 'Tahoma', sans-serif;
             background: #f3f6f9;
             margin: 0;
@@ -51,16 +49,14 @@ body {
             padding: 15px;
         }
     </style>
-</head>
-<body>
-
-    <h2>🚗 عملاء كورس المانيوال</h2>
+{%endblock%}
+{%block content%}
+<h2>🚗 عملاء كورس المانيوال</h2>
     <table>
         <tr>
             <th>رقم العميل</th>
             <th>الاسم</th>
             <th>الكورس</th>
-            <th>رقم الهاتف</th>
         </tr>
         {% if data_manual %}
             {% for client in data_manual %}
@@ -68,11 +64,10 @@ body {
                 <td>{{ client[0] }}</td>
                 <td>{{ client[1] }}</td>
                 <td>{{ client[2] }}</td>
-                <td>{{ client[3] }}</td>
             </tr>
             {% endfor %}
         {% else %}
-            <tr><td colspan="4" class="no-data">لا يوجد بيانات</td></tr>
+            <tr><td colspan="3" class="no-data">لا يوجد عملاء</td></tr>
         {% endif %}
     </table>
 
@@ -82,7 +77,6 @@ body {
             <th>رقم العميل</th>
             <th>الاسم</th>
             <th>الكورس</th>
-            <th>رقم الهاتف</th>
         </tr>
         {% if data_auto %}
             {% for client in data_auto %}
@@ -90,13 +84,29 @@ body {
                 <td>{{ client[0] }}</td>
                 <td>{{ client[1] }}</td>
                 <td>{{ client[2] }}</td>
-                <td>{{ client[3] }}</td>
             </tr>
             {% endfor %}
         {% else %}
-            <tr><td colspan="4" class="no-data">لا يوجد بيانات</td></tr>
+            <tr><td colspan="3" class="no-data">لا يوجد عملاء</td></tr>
         {% endif %}
     </table>
-
-</body>
-</html>
+    <h2>🚙 عملاء كورس الميكس</h2>
+    <table>
+        <tr>
+            <th>رقم العميل</th>
+            <th>الاسم</th>
+            <th>الكورس</th>
+        </tr>
+        {% if data_mix %}
+            {% for client in data_mix %}
+            <tr>
+                <td>{{ client[0] }}</td>
+                <td>{{ client[1] }}</td>
+                <td>{{ client[2] }}</td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr><td colspan="3" class="no-data">لا يوجد عملاء</td></tr>
+        {% endif %}
+    </table>
+{%endblock%}
