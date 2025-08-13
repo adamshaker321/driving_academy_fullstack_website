@@ -113,6 +113,42 @@
         padding: 120px 20px 20px;
         min-height: 70vh;
     }
+        .sidebar {
+        position: fixed;
+        top: 0;
+        right: -240px;
+        width: 220px;
+        height: 100vh;
+        background-color: rgba(38, 50, 56, 0.95);
+        padding-top: 180px; /* رفع العناصر تحت أكتر */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 100;
+        transition: right 0.3s ease;
+    }
+
+    .sidebar.active { right: 0; }
+
+    .sidebar a {
+        color: white;
+        text-decoration: none;
+        margin: 15px 0;
+        padding: 12px 20px;
+        border-radius: 25px;
+        background-color: #388e3c;
+        font-weight: bold;
+        font-size: 16px;
+        width: 80%;
+        text-align: center;
+        transition: 0.3s ease;
+    }
+
+    .sidebar a:hover {
+        background-color: #2e7d32;
+        transform: scale(1.05);
+    }
+
 </style>
 
 {% block styles %}{% endblock %}
@@ -142,6 +178,8 @@
 <div class="sidebar" id="sidebar">
     <a href="/booking">📅حجز المواعيد</a>
     <a href="/admin">⚙️ Admin</a>
+    <a href="/login">حسابك</a>
+
 </div>
 
 <!-- Page Content -->

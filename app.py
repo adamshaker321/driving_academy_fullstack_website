@@ -270,12 +270,6 @@ def automatic_booking():
 
 
 
-
-
-
-
-
-
 @app.route("/clients_data")
 def clients_data():
     conn = get_connection()
@@ -370,7 +364,34 @@ def remove_review():
 
     return render_template("remove_review.html")    
 
-    
+@app.route("/login",methods=["GET","POST"])
+def login():
+    message=None
+    if request.method == 'POST':
+        user_id = request.form['client_id']
+        user_name = request.form['client_name']
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # نشوف إذا الـ ID موجود
+        cursor.execute("SELECT id,name FROM clients WHERE id = %s", (user_id,))
+        existing_client = cursor.fetchall()
+        valid=False
+        for client in existing_client:
+            if client[0]==user_id and client[1]==user_name:
+                valid=True
+                break
+        if valid:
+            return redirect("/client_page")
+        else :
+            message='ادخل بيانات صحيحة !'
+
+            return render_template("login.html",message=message)    
+    return render_template("login.html")    
+
+@app.route("/client_page")
+def client_page():
+    return render_template("client_page.html")    
 if __name__=="__main__":
     app.run(debug=True)
     

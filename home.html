@@ -7,13 +7,14 @@
 <style>
     body {
         font-family: 'Tahoma', sans-serif;
-        background: rgba(20, 20, 20, 0.85) url("{{ url_for('static', filename='background.jpg') }}") no-repeat center center fixed;
+        background: rgba(20, 20, 20, 0.85) no-repeat center center fixed;
         background-blend-mode: darken;
         background-size: cover;
         margin: 0;
         padding: 0;
         color: white;
         text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
+        transition: background-image 1s ease-in-out;
     }
 
     .top-bar {
@@ -28,6 +29,7 @@
         right: 0;
         left: 0;
         z-index: 102;
+        transition: transform 0.3s ease;
     }
 
     .top-left {
@@ -81,6 +83,7 @@
         border-radius: 8px;
         cursor: pointer;
         border: none;
+        transition: transform 0.3s ease;
     }
 
     .sidebar {
@@ -90,7 +93,7 @@
         width: 220px;
         height: 100vh;
         background-color: rgba(38, 50, 56, 0.95);
-        padding-top: 100px;
+        padding-top: 180px; /* رفع العناصر تحت أكتر */
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -98,9 +101,7 @@
         transition: right 0.3s ease;
     }
 
-    .sidebar.active {
-        right: 0;
-    }
+    .sidebar.active { right: 0; }
 
     .sidebar a {
         color: white;
@@ -122,11 +123,19 @@
     }
 
     .main-content {
-        padding: 120px 20px 20px;
-        text-align: left;
+        padding: 130px 20px 20px;
+        text-align: right;
         font-size: 30px;
         min-height: 70vh;
         animation: fadeInUp 3s ease-in-out;
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar.active ~ .main-content,
+    .sidebar.active ~ .top-bar,
+    .sidebar.active ~ .menu-btn,
+    .sidebar.active ~ .address {
+        transform: translateX(-200px);
     }
 
     @keyframes fadeInUp {
@@ -134,7 +143,6 @@
         to { opacity: 1; transform: translateY(0); }
     }
 
-    /* قسم Contact Us */
     .contact-section {
         background-color: rgba(15, 15, 15, 0.95);
         padding: 30px 20px;
@@ -169,21 +177,16 @@
         flex: 1;
         max-width: 250px;
         box-shadow: 0 0 10px rgba(0,0,0,0.4);
-    
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
     }
 
-    .contact-box h3 {
-        margin-bottom: 10px;
-        color: #00e6e6;
+    .contact-box:hover {
+        transform: scale(1.08) translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.6);
     }
 
-    .icon {
-        font-size: 28px;
-        margin-bottom: 10px;
-        color: #00e6e6;
-    }
-
-    /* تصميم الروابط مع الأيقونات */
+    .contact-box h3 { margin-bottom: 10px; color: #00e6e6; }
+    .icon { font-size: 28px; margin-bottom: 10px; color: #00e6e6; }
     .link-with-icon {
         display: inline-flex;
         align-items: center;
@@ -194,20 +197,39 @@
         text-decoration: none;
         transition: color 0.3s ease;
     }
+    .link-with-icon:hover { color: #00b3b3; text-decoration: underline; }
+    .link-with-icon i { font-size: 20px; }
 
-    .link-with-icon:hover {
-        color: #00b3b3;
-        text-decoration: underline;
+    /* بوكس العنوان مع تأثير ديناميكي عند hover */
+    .address , h2{
+        font-size: 30px;
     }
-
-    .link-with-icon i {
+    .address , p{
         font-size: 20px;
+    }
+.address {
+    background: linear-gradient(to right, #90565c, #6d628a, #3f697b);
+    padding: 30px 20px;    
+    text-align: right;
+    font-size: 18px;
+    border-radius: 15px;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: 0;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    position: relative;
+    top: -60px; /* الرقم ده هيرفع البوكس فوق */
+}
+
+    .address:hover {
+        transform: scale(1.05) translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.7);
     }
 </style>
 </head>
 <body>
 
-<!-- الشريط العلوي -->
 <div class="top-bar">
     <div class="top-left">
         <a href="/home">
@@ -223,18 +245,15 @@
     </div>
 </div>
 
-<!-- زر القائمة -->
 <button class="menu-btn" onclick="toggleSidebar()">☰</button>
 
-<!-- Sidebar -->
 <div class="sidebar" id="sidebar">
     <a href="/booking">📅 حجزالمواعيد</a>
     <a href="/admin">⚙️ Admin</a>
+    <a href="/login">حسابك</a>
 </div>
 
-<!-- المحتوى -->
 <div class="main-content">
-    
     <ul style="list-style: none; padding: 0;">
         <li><strong>أكتر من 5000 متدرب ناجح</strong></li>
         <li><strong>مدربين محترفين</strong></li>
@@ -242,7 +261,14 @@
     </ul>
 </div>
 
-<!-- قسم Contact Us -->
+<div class="address">
+    <h2>عنواننا : </h2>
+    <p>الاسكندرية الشاطبي,</p> 
+    <p>ش- بورسعيد</p>
+    <p>خلف جمعية الشبان المسلمين</p>
+    <p>من 10 ص الى 8 م</p>
+</div>
+
 <div id="contact" class="contact-section">
     <h2 class="contact-title">📞 Contact Us</h2>
     <div class="contact-container">
@@ -273,6 +299,20 @@
     function toggleSidebar() {
         document.getElementById("sidebar").classList.toggle("active");
     }
+
+    const backgrounds = [
+        "{{ url_for('static', filename='background.jpg') }}",
+        "{{ url_for('static', filename='background2.jpg') }}"
+    ];
+    let currentIndex = 0;
+
+    function changeBackground() {
+        currentIndex = (currentIndex + 1) % backgrounds.length;
+        document.body.style.backgroundImage = `url('${backgrounds[currentIndex]}')`;
+    }
+
+    document.body.style.backgroundImage = `url('${backgrounds[currentIndex]}')`;
+    setInterval(changeBackground, 2000);
 </script>
 
 </body>
