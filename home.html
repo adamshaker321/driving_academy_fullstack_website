@@ -93,7 +93,7 @@
         width: 220px;
         height: 100vh;
         background-color: rgba(38, 50, 56, 0.95);
-        padding-top: 180px; /* رفع العناصر تحت أكتر */
+        padding-top: 180px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -101,7 +101,9 @@
         transition: right 0.3s ease;
     }
 
-    .sidebar.active { right: 0; }
+    .sidebar.active {
+        right: 0;
+    }
 
     .sidebar a {
         color: white;
@@ -199,36 +201,6 @@
     }
     .link-with-icon:hover { color: #00b3b3; text-decoration: underline; }
     .link-with-icon i { font-size: 20px; }
-
-    /* بوكس العنوان مع تأثير ديناميكي عند hover */
-    .address , h2{
-        font-size: 30px;
-    }
-    .address , p{
-        font-size: 20px;
-    }
-.address {
-        background-color: rgba(38, 50, 56, 0.9);
-
-    transform: scale(1.08) translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.6);
-    padding: 30px 20px;    
-    text-align: right;
-    font-size: 18px;
-    border-radius: 15px;
-    max-width: 700px;
-    margin-left: auto;
-    margin-right: 0;
-    box-shadow: 0 0 15px rgba(0,0,0,0.5);
-    transition: transform 0.4s ease, box-shadow 0.4s ease;
-    position: relative;
-    top: -60px; /* الرقم ده هيرفع البوكس فوق */
-}
-
-    .address:hover {
-        transform: scale(1.05) translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.7);
-    }
 </style>
 </head>
 <body>
@@ -250,7 +222,8 @@
 
 <button class="menu-btn" onclick="toggleSidebar()">☰</button>
 
-<div class="sidebar" id="sidebar">
+<!-- أضفنا class="active" هنا -->
+<div class="sidebar active" id="sidebar">
     <a href="/booking">📅 حجزالمواعيد</a>
     <a href="/admin">⚙️ Admin</a>
     <a href="/login">حسابك</a>
@@ -262,14 +235,6 @@
         <li><strong>مدربين محترفين</strong></li>
         <li><strong>خبرة 10 اعوام في تعليم القيادة</strong></li>
     </ul>
-</div>
-
-<div class="address">
-    <h2>عنواننا : </h2>
-    <p>الاسكندرية الشاطبي,</p> 
-    <p>ش- بورسعيد</p>
-    <p>خلف جمعية الشبان المسلمين</p>
-    <p>من 10 ص الى 8 م</p>
 </div>
 
 <div id="contact" class="contact-section">
@@ -294,6 +259,13 @@
             <a href="https://www.youtube.com/@ANDriving1" target="_blank" class="link-with-icon">
                 <i class="fab fa-youtube"></i> YouTube
             </a>
+        </div>
+        <div class="contact-box">
+            <h3>:عنواننا</h3>
+            <p>الاسكندرية الشاطبي,</p> 
+            <p>ش- بورسعيد</p>
+            <p>خلف جمعية الشبان المسلمين</p>
+            <p>من 10 ص الى 8 م</p>
         </div>
     </div>
 </div>
