@@ -80,6 +80,8 @@ def removing():
 
         if existing_client:
             # حذف العميل
+            cursor.execute("DELETE FROM client_manual_sessions WHERE id = %s", (user_id,))
+            cursor.execute("DELETE FROM client_automatic_sessions WHERE id = %s", (user_id,))
             cursor.execute("DELETE FROM clients WHERE id = %s", (user_id,))
             conn.commit()
             cursor.close()
@@ -149,10 +151,10 @@ def manual_booking():
         session_date = request.form['session_day_hour']   
         phone_number = request.form['phone']              
 
-        # تحديد الحد الأقصى لكل سلوط
+        # السعة القصوى لكل slot
         MAX_CAPACITY = 3  
 
-        # عدد الحجوزات في نفس اليوم والساعة
+        # عدد الحجوزات الحالية في نفس slot
         cursor.execute("""
             SELECT COUNT(*) FROM client_manual_sessions
             WHERE session_day = %s
@@ -162,7 +164,7 @@ def manual_booking():
         if current_bookings >= MAX_CAPACITY:
             message = "⚠ المعاد ده اتحجز بالكامل."
         else:
-            # التأكد إن العميل مايحجزش نفس المعاد مرتين
+            # التأكد إن العميل مايحجزش نفس slot مرتين
             cursor.execute("""
                 SELECT COUNT(*) FROM client_manual_sessions
                 WHERE id = %s AND session_day = %s
@@ -186,19 +188,23 @@ def manual_booking():
                 else:
                     message = "⚠ العميل غير موجود."
 
-    # جلب المواعيد المحجوزة (مع العدد)
-    cursor.execute("SELECT session_day, COUNT(*) FROM client_manual_sessions GROUP BY session_day")
-    booked_slots_count = {row[0]: row[1] for row in cursor.fetchall()}
+    # جلب أسماء العملاء لكل slot
+    cursor.execute("SELECT session_day, client_name FROM client_manual_sessions")
+    rows = cursor.fetchall()
+    booked_slots_names = {}
+    for session, name in rows:
+        if session not in booked_slots_names:
+            booked_slots_names[session] = []
+        booked_slots_names[session].append(name)
 
     cursor.close()
     conn.close()
 
     return render_template(
         "manual_booking.html",
-        booked_slots_count=booked_slots_count,
+        booked_slots_names=booked_slots_names,
         message=message
     )
-
 
 
 
@@ -215,13 +221,12 @@ def automatic_booking():
     if request.method == 'POST':
         client_name = request.form['name']                
         client_id = request.form['password']              
-        session_date = request.form['session_day_hour']   # جملة زي "يوم الأحد الساعة 10 ص"
+        session_date = request.form['session_day_hour']   
         phone_number = request.form['phone']              
 
-        # السعة القصوى لكل Slot = 2
-        MAX_CAPACITY = 2  
+        MAX_CAPACITY = 2  # السعة القصوى لكل slot
 
-        # عدد الحجوزات الحالية في نفس المعاد
+        # عدد الحجوزات الحالية في نفس slot
         cursor.execute("""
             SELECT COUNT(*) FROM client_automatic_sessions
             WHERE session_day = %s
@@ -231,7 +236,7 @@ def automatic_booking():
         if current_bookings >= MAX_CAPACITY:
             message = "⚠ المعاد ده اتحجز بالكامل."
         else:
-            # التأكد إن العميل مايحجزش نفس المعاد مرتين
+            # التأكد إن العميل مايحجزش نفس slot مرتين
             cursor.execute("""
                 SELECT COUNT(*) FROM client_automatic_sessions
                 WHERE id = %s AND session_day = %s
@@ -241,7 +246,7 @@ def automatic_booking():
             if already_booked:
                 message = "⚠ انت حجزت المعاد ده قبل كده."
             else:
-                # التأكد إن العميل موجود في جدول clients
+                # التأكد إن العميل موجود
                 cursor.execute("SELECT id FROM clients WHERE id = %s", (client_id,))
                 client_exists = cursor.fetchone()
 
@@ -255,20 +260,57 @@ def automatic_booking():
                 else:
                     message = "⚠ العميل غير موجود."
 
-    # جلب المواعيد المحجوزة (مع العدد)
-    cursor.execute("SELECT session_day, COUNT(*) FROM client_automatic_sessions GROUP BY session_day")
-    booked_slots_count = {row[0]: row[1] for row in cursor.fetchall()}
+    # جلب أسماء العملاء لكل slot
+    cursor.execute("SELECT session_day, client_name FROM client_automatic_sessions")
+    rows = cursor.fetchall()
+    booked_slots_names = {}
+    for session, name in rows:
+        if session not in booked_slots_names:
+            booked_slots_names[session] = []
+        booked_slots_names[session].append(name)
 
     cursor.close()
     conn.close()
 
     return render_template(
         "automatic_booking.html",
-        booked_slots_count=booked_slots_count,
+        booked_slots_names=booked_slots_names,
         message=message
     )
 
+@app.route("/cancel_booking", methods=["POST"])
+def cancel_booking():
+    cancel_id = request.form.get("cancel_id")
+    session_day_hour = request.form.get("session_day_hour")
+    session_type = request.form.get("session_type", "manual")  # نوع الحجز
 
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    if session_type == "manual":
+        table_name = "client_manual_sessions"
+    else:
+        table_name = "client_automatic_sessions"
+
+    cursor.execute(
+        f"SELECT * FROM {table_name} WHERE id = %s AND session_day = %s",
+        (cancel_id, session_day_hour)
+    )
+    booking = cursor.fetchone()
+
+    if booking:
+        cursor.execute(
+            f"DELETE FROM {table_name} WHERE id = %s AND session_day = %s",
+            (cancel_id, session_day_hour)
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return redirect(f"/{session_type}_booking")
+    else:
+        cursor.close()
+        conn.close()
+        return redirect(f"/{session_type}_booking")
 
 @app.route("/clients_data")
 def clients_data():
@@ -382,7 +424,16 @@ def login():
                 valid=True
                 break
         if valid:
-            return redirect("/client_page")
+            cursor.execute("SELECT course FROM clients WHERE id = %s", (user_id,))
+            course= cursor.fetchall()[0]
+            if course[0] == 'manual':
+                cursor.execute("SELECT client_name,phone,session_day FROM client_manual_sessions WHERE id = %s", (user_id,))
+                sessions_manual = cursor.fetchall()
+                return render_template("client_page.html",sessions_manual=sessions_manual)
+            elif course[0] == 'automatic':    
+                cursor.execute("SELECT client_name,phone,session_day FROM client_automatic_sessions WHERE id = %s", (user_id,))
+                sessions_automatic = cursor.fetchall()
+                return render_template("client_page.html",sessions_automatic=sessions_automatic)
         else :
             message='ادخل بيانات صحيحة !'
 
