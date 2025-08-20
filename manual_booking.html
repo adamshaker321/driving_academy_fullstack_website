@@ -22,10 +22,18 @@
 {% block content %}
 <h1>جدول المانيوال</h1>
 
-{% if message_sure %}
-  <div class="alert-message">{{ message_sure }}</div>
-{% elif message_nega %}
-  <div class="alert-message">{{ message_nega }}</div>
+{% if message %}
+  <div class="alert-message">{{ message }}</div>
+{% elif already_booked_message %}
+  <div class="alert-message">{{ already_booked_message }}</div>
+{% elif booked_confirmed_message %}
+  <div class="alert-message" style="background:#e5ffe5; border:1px solid green; color:green;">
+    {{ booked_confirmed_message }}
+  </div>
+{% elif more_than_two_sessions %}
+  <div class="alert-message">{{ more_than_two_sessions }}</div>
+{% elif delete_message %}
+  <div class="alert-message">{{ delete_message }}</div>
 {% endif %}
 
 <div class="overlay" id="overlay"></div>
@@ -41,8 +49,8 @@
     <input type="tel" name="phone" placeholder="رقم الهاتف" required>
     <input type="submit" value="حجز">
   </form>
+  
 </div>
-
 <!-- فورم إلغاء الحجز -->
 <div class="popup-form" id="cancelForm">
   <button class="close-btn" onclick="closeCancelForm()">X</button>

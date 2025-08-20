@@ -1,11 +1,12 @@
 import os
 import datetime
-from datetime import datetime , timedelta
+from datetime import timedelta
 import mysql.connector
 from flask import Flask,render_template,redirect,request,url_for
 from werkzeug.utils import secure_filename
 from db_config import get_connection
 app = Flask(__name__)
+
 
 
 def reset_week(table_number):
@@ -18,13 +19,25 @@ def reset_week(table_number):
 
     today = datetime.today().date()
 
+    if not last_week:
+        new_start = today
+        new_end = today + timedelta(days=5)  
+        cursor.execute(
+            "INSERT INTO weeks (table_number, start_date, end_date) VALUES (%s, %s, %s)",
+            (table_number, new_start, new_end)
+        )
+        conn.commit()
+        conn.close()
+        return
+
     if today > last_week['end_date']:
         # بداية الأسبوع الجديد بعد آخر نهاية
         new_start = last_week['end_date'] + timedelta(days=1)
         new_end = new_start + timedelta(days=5)  # أسبوع 6 أيام
-
+        
         # امسح الحجوزات القديمة للجدول ده
-        cursor.execute("DELETE FROM bookings WHERE table_number=%s", (table_number,))
+        cursor.execute("DELETE FROM client_manual_sessions WHERE table_number=%s", (table_number,))
+        cursor.execute("DELETE FROM client_automatic_sessions WHERE table_number=%s", (table_number,))
 
         # سجل الأسبوع الجديد
         cursor.execute(
@@ -34,6 +47,7 @@ def reset_week(table_number):
         conn.commit()
 
     conn.close()
+
 @app.route("/home")
 def home():
     return render_template("home.html")
@@ -167,12 +181,20 @@ def booking():
 
 
 
+
+
+
+
+
 @app.route("/manual_booking", methods=["GET", "POST"])
 def manual_booking():
     conn = get_connection()
     cursor = conn.cursor()
 
     message = None  
+    already_booked_message = None
+    booked_confirmed_message = None
+    more_than_two_sessions = None
 
     if request.method == 'POST':
         client_name = request.form['name']                
@@ -201,19 +223,25 @@ def manual_booking():
             already_booked = cursor.fetchone()[0] > 0
 
             if already_booked:
-                message = "⚠ انت حجزت المعاد ده قبل كده."
+                already_booked_message = "⚠ انت حجزت المعاد ده قبل كده."
             else:
                 # التأكد إن العميل موجود
                 cursor.execute("SELECT id FROM clients WHERE id = %s", (client_id,))
                 client_exists = cursor.fetchone()
 
                 if client_exists:
-                    cursor.execute("""
-                        INSERT INTO client_manual_sessions (id, client_name, phone, session_day, book_date)
-                        VALUES (%s, %s, %s, %s, %s)
-                    """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))
-                    conn.commit()
-                    message = "✅ تم الحجز بنجاح."
+                    cursor.execute("SELECT count(*) FROM client_manual_sessions where id = %s", (client_id,))
+                    total_sessions_per_week= cursor.fetchone()[0]
+                    if total_sessions_per_week < 2:
+                        cursor.execute("""
+                            INSERT INTO client_manual_sessions (id, client_name, phone, session_day, book_date)
+                            VALUES (%s, %s, %s, %s, %s)
+                        """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))
+                        conn.commit()
+                        booked_confirmed_message = "✅ تم الحجز بنجاح."
+                    else:
+                        more_than_two_sessions = "⚠️ لقد قمت بحجز أكثر من معادين في هذا الأسبوع. "
+                        
                 else:
                     message = "⚠ العميل غير موجود."
 
@@ -232,9 +260,11 @@ def manual_booking():
     return render_template(
         "manual_booking.html",
         booked_slots_names=booked_slots_names,
+        already_booked_message=already_booked_message if 'already_booked_message' in locals() else None,
+        booked_confirmed_message=booked_confirmed_message ,
+        more_than_two_sessions=more_than_two_sessions ,    
         message=message
     )
-
 
 
 
@@ -246,6 +276,9 @@ def automatic_booking():
     cursor = conn.cursor()
 
     message = None  
+    already_booked_message = None
+    booked_confirmed_message = None
+    more_than_two_sessions = None
 
     if request.method == 'POST':
         client_name = request.form['name']                
@@ -273,19 +306,25 @@ def automatic_booking():
             already_booked = cursor.fetchone()[0] > 0
 
             if already_booked:
-                message = "⚠ انت حجزت المعاد ده قبل كده."
+                already_booked_message = "⚠ انت حجزت المعاد ده قبل كده."
             else:
                 # التأكد إن العميل موجود
                 cursor.execute("SELECT id FROM clients WHERE id = %s", (client_id,))
                 client_exists = cursor.fetchone()
 
                 if client_exists:
-                    cursor.execute("""
-                        INSERT INTO client_automatic_sessions (id, client_name, phone, session_day, book_date)
-                        VALUES (%s, %s, %s, %s, %s)
-                    """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))
-                    conn.commit()
-                    message = "✅ تم الحجز بنجاح."
+                    cursor.execute("SELECT count(*) FROM client_automatic_sessions where id = %s", (client_id,))
+                    total_sessions_per_week = cursor.fetchone()[0]  
+                    if total_sessions_per_week < 2:
+                        
+                        cursor.execute("""
+                            INSERT INTO client_automatic_sessions (id, client_name, phone, session_day, book_date)
+                            VALUES (%s, %s, %s, %s, %s)
+                        """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))
+                        conn.commit()
+                        booked_confirmed_message = "✅ تم الحجز بنجاح."
+                    else:
+                        more_than_two_sessions = "⚠️ لقد قمت بحجز أكثر من معادين في هذا الأسبوع. "
                 else:
                     message = "⚠ العميل غير موجود."
 
@@ -304,8 +343,12 @@ def automatic_booking():
     return render_template(
         "automatic_booking.html",
         booked_slots_names=booked_slots_names,
+        already_booked_message=already_booked_message ,
+        booked_confirmed_message=booked_confirmed_message,
+        more_than_two_sessions=more_than_two_sessions,
         message=message
     )
+
 
 @app.route("/cancel_booking", methods=["POST"])
 def cancel_booking():
@@ -335,6 +378,8 @@ def cancel_booking():
         conn.commit()
         cursor.close()
         conn.close()
+
+        # هنا نعمل redirect عشان نستفيد من نفس اللوجيك اللي بيجهز البيانات
         return redirect(f"/{session_type}_booking")
     else:
         cursor.close()

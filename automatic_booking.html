@@ -21,6 +21,17 @@
 
 {% block content %}
 <h1>جدول الاوتوماتيك 1</h1>
+{% if message %}
+  <div class="alert-message">{{ message }}</div>
+{% elif already_booked_message %}
+  <div class="alert-message">{{ already_booked_message }}</div>
+{% elif booked_confirmed_message %}
+  <div class="alert-message" style="background:#e5ffe5; border:1px solid green; color:green;">
+    {{ booked_confirmed_message }}
+  </div>
+{% elif more_than_two_sessions %}
+  <div class="alert-message">{{ more_than_two_sessions }}</div>
+{% endif %}
 
 <div class="overlay" id="overlay"></div>
 

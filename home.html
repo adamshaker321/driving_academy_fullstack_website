@@ -124,14 +124,42 @@
         transform: scale(1.05);
     }
 
-    .main-content {
-        padding: 130px 20px 20px;
-        text-align: center;
-        font-size: 30px;
-        min-height: 70vh;
-        animation: fadeInUp 3s ease-in-out;
-        transition: transform 0.3s ease;
+.main-content {
+    padding: 130px 20px 20px;
+    text-align: center;
+    font-size: 40px;
+    min-height: 70vh;
+}
+
+/* تنسيق العناصر داخل القائمة */
+.main-content ul li {
+    margin-bottom: 30px; /* مسافة بين السطور */
+    opacity: 0; /* نخليها شفافة الأول */
+    animation: fadeInUp 3s ease forwards;
+}
+
+/* نخلي كل سطر يظهر بعد التاني */
+.main-content ul li:nth-child(1) {
+    animation-delay: 0.6s;
+}
+.main-content ul li:nth-child(2) {
+    animation-delay: 0.75s;
+}
+.main-content ul li:nth-child(3) {
+    animation-delay: 0.9s;
+}
+
+/* أنيميشن */
+@keyframes fadeInUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
     }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
 
     .sidebar.active ~ .main-content,
     .sidebar.active ~ .top-bar,
@@ -223,10 +251,9 @@
 <button class="menu-btn" onclick="toggleSidebar()">☰</button>
 
 <div class="sidebar active" id="sidebar">
-    <a href="/booking">📅 حجزالمواعيد</a>
-    <a href="/login">حسابك</a>
-
-    <a href="/admin">⚙ Admin</a>
+    <a href="/booking">احجز مواعيد حصصك</a>
+    <a href="/login">سجل الدخول لحسابك</a>
+    <a href="/admin"> Admin</a>
 </div>
 
 <div class="main-content">
@@ -277,14 +304,9 @@
 
     const backgrounds = [
         "{{ url_for('static', filename='background.jpg') }}",
-        "{{ url_for('static', filename='background2.jpg') }}"
     ];
     let currentIndex = 0;
 
-    function changeBackground() {
-        currentIndex = (currentIndex + 1) % backgrounds.length;
-        document.body.style.backgroundImage = `url('${backgrounds[currentIndex]}')`;
-    }
 
     document.body.style.backgroundImage = `url('${backgrounds[currentIndex]}')`;
     setInterval(changeBackground, 2000);

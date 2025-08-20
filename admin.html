@@ -22,6 +22,11 @@
             width: 320px;
         }
 
+        .login-container img {
+            width: 200px;
+            margin-bottom: 15px;
+        }
+
         h2 {
             color: #c62828;
             margin-bottom: 20px;
@@ -74,6 +79,10 @@
     {% endblock %}
 {%block content%}
     <div class="login-container">
+        
+        <!-- الصورة -->
+        <img src="{{ url_for('static', filename='forms_background.png') }}" alt="A&N Driving Academy">
+
         <form action="/admin" method="POST">
             <h2>تسجيل دخول Admin</h2>
 
