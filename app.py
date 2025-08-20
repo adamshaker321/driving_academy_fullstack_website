@@ -1,10 +1,39 @@
 import os
 import datetime
+from datetime import datetime , timedelta
+import mysql.connector
 from flask import Flask,render_template,redirect,request,url_for
 from werkzeug.utils import secure_filename
 from db_config import get_connection
 app = Flask(__name__)
 
+
+def reset_week(table_number):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # آخر أسبوع مسجّل للجدول
+    cursor.execute("SELECT * FROM weeks WHERE table_number=%s ORDER BY end_date DESC LIMIT 1", (table_number,))
+    last_week = cursor.fetchone()
+
+    today = datetime.today().date()
+
+    if today > last_week['end_date']:
+        # بداية الأسبوع الجديد بعد آخر نهاية
+        new_start = last_week['end_date'] + timedelta(days=1)
+        new_end = new_start + timedelta(days=5)  # أسبوع 6 أيام
+
+        # امسح الحجوزات القديمة للجدول ده
+        cursor.execute("DELETE FROM bookings WHERE table_number=%s", (table_number,))
+
+        # سجل الأسبوع الجديد
+        cursor.execute(
+            "INSERT INTO weeks (table_number, start_date, end_date) VALUES (%s,%s,%s)",
+            (table_number, new_start, new_end)
+        )
+        conn.commit()
+
+    conn.close()
 @app.route("/home")
 def home():
     return render_template("home.html")
@@ -427,13 +456,19 @@ def login():
             cursor.execute("SELECT course FROM clients WHERE id = %s", (user_id,))
             course= cursor.fetchall()[0]
             if course[0] == 'manual':
-                cursor.execute("SELECT client_name,phone,session_day FROM client_manual_sessions WHERE id = %s", (user_id,))
+                cursor.execute("SELECT client_name,id,phone,session_day FROM client_manual_sessions WHERE id = %s", (user_id,))
                 sessions_manual = cursor.fetchall()
                 return render_template("client_page.html",sessions_manual=sessions_manual)
             elif course[0] == 'automatic':    
-                cursor.execute("SELECT client_name,phone,session_day FROM client_automatic_sessions WHERE id = %s", (user_id,))
+                cursor.execute("SELECT client_name,id,phone,session_day FROM client_automatic_sessions WHERE id = %s", (user_id,))
                 sessions_automatic = cursor.fetchall()
                 return render_template("client_page.html",sessions_automatic=sessions_automatic)
+            elif course[0] == 'mix':
+                cursor.execute("SELECT client_name,id,phone,session_day FROM client_manual_sessions WHERE id = %s", (user_id,))
+                sessions_manual = cursor.fetchall()
+                cursor.execute("SELECT client_name,id,phone,session_day FROM client_automatic_sessions WHERE id = %s", (user_id,))
+                sessions_automatic = cursor.fetchall()
+                return render_template("client_page.html",sessions_manual=sessions_manual,sessions_automatic=sessions_automatic)
         else :
             message='ادخل بيانات صحيحة !'
 

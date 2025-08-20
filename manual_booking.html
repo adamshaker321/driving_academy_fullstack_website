@@ -5,7 +5,7 @@
 {% block styles %}
 <style>
   h1 { text-align: center; color: black; margin-top: 50px; }
-  .tables-container { display: flex; justify-content: center; gap: 30px; margin-top: 20px; }
+  .tables-container { display: flex; justify-content: center; gap: 30px; margin-top: 20px; flex-wrap: wrap; }
   .table { width: 100%; border-collapse: collapse; font-size: 18px; }
   .table th, .table td { padding: 12px; text-align: center; border: 1px solid #ccc; }
   .book-btn { background-color: green; color: white; padding: 6px 10px; border: none; cursor: pointer; border-radius: 5px; }
@@ -15,7 +15,7 @@
   .close-btn { background: red; color: white; padding: 5px 10px; border: none; cursor: pointer; float: right; border-radius: 5px; }
   .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 999; }
   .alert-message { color: red; font-weight: bold; text-align: center; margin-bottom: 15px; padding: 10px; background: #ffe5e5; border: 1px solid red; border-radius: 5px; width: 60%; margin-left: auto; margin-right: auto; }
-  .table-wrapper { flex: 1; }
+  .table-wrapper { flex: 1; min-width: 600px; }
 </style>
 {% endblock %}
 
@@ -55,7 +55,9 @@
 </div>
 
 <div class="tables-container">
+  <!-- الجدول الأول -->
   <div class="table-wrapper">
+    <h2 style="text-align:center">الجدول الأول</h2>
     <table class="table">
       <tr>
           <th>الساعة</th>
@@ -70,7 +72,47 @@
       <tr>
           <td>الساعة {{ hour }}</td>
           {% for day in ["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"] %}
-              {% set day_hour_label = "يوم " ~ day ~ " الساعة " ~ hour %}
+              {% set day_hour_label = "جدول1 - يوم " ~ day ~ " الساعة " ~ hour %}
+              {% if (hour in ["10 ص", "11 ص", "12 م", "1 م"]) and (day in ["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"]) %}
+                  {% set num_cells = 2 %}
+              {% else %}
+                  {% set num_cells = 3 %}
+              {% endif %}
+              <td>
+                  {% set names = booked_slots_names.get(day_hour_label, []) %}
+                  {% for i in range(num_cells) %}
+                      {% if i < names|length %}
+                          <span class="cancel-btn" onclick="openCancelForm('{{ day_hour_label }}')">{{ names[i] }}</span>
+                      {% else %}
+                          <button class="book-btn" onclick="openForm('{{ day_hour_label }}')">احجز</button>
+                      {% endif %}
+                      <br>
+                  {% endfor %}
+              </td>
+          {% endfor %}
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+
+  <!-- الجدول الثاني -->
+  <div class="table-wrapper">
+    <h2 style="text-align:center">الجدول الثاني</h2>
+    <table class="table">
+      <tr>
+          <th>الساعة</th>
+          <th>السبت</th>
+          <th>الأحد</th>
+          <th>الاثنين</th>
+          <th>الثلاثاء</th>
+          <th>الأربعاء</th>
+          <th>الخميس</th>
+      </tr>
+      {% for hour in ["10 ص","11 ص","12 م","1 م","2 م","3 م","4 م","5 م","6 م","7 م"] %}
+      <tr>
+          <td>الساعة {{ hour }}</td>
+          {% for day in ["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"] %}
+              {% set day_hour_label = "جدول2 - يوم " ~ day ~ " الساعة " ~ hour %}
               {% if (hour in ["10 ص", "11 ص", "12 م", "1 م"]) and (day in ["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"]) %}
                   {% set num_cells = 2 %}
               {% else %}

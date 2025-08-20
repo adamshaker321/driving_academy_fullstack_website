@@ -56,6 +56,7 @@
         {% if sessions_manual %}
         <tr>
             <th>اسمك </th>
+            <th>رقمك التعريفي </th>
             <th>رقم هاتفك</th>
             <th>مواعيد حصصك</th>
         </tr>
@@ -64,11 +65,13 @@
                 <td>{{ session[0] }}</td>
                 <td>{{ session[1] }}</td>
                 <td>{{ session[2] }}</td>
+                <td>{{ session[3] }}</td>
             </tr>
             {% endfor %}
         {% elif sessions_automatic %}
         <tr>
             <th>اسمك </th>
+            <th>رقمك التعريفي </th>
             <th>رقم هاتفك</th>
             <th>مواعيد حصصك</th>
         </tr>
@@ -77,6 +80,7 @@
                 <td>{{ session[0] }}</td>
                 <td>{{ session[1] }}</td>
                 <td>{{ session[2] }}</td>
+                <td>{{ session[3] }}</td>
             </tr>
             {% endfor %}
             {%else%}

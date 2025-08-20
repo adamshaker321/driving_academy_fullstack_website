@@ -5,7 +5,7 @@
 {% block styles %}
 <style>
   h1 { text-align: center; color: black; margin-top: 50px; }
-  .tables-container { display: flex; justify-content: center; gap: 30px; margin-top: 20px; }
+  .tables-container { display: flex; justify-content: center; flex-direction: column; gap: 50px; margin-top: 20px; }
   .table { width: 100%; border-collapse: collapse; font-size: 18px; }
   .table th, .table td { padding: 12px; text-align: center; border: 1px solid #ccc; }
   .book-btn { background-color: green; color: white; padding: 6px 10px; border: none; cursor: pointer; border-radius: 5px; }
@@ -20,10 +20,11 @@
 {% endblock %}
 
 {% block content %}
-<h1>جدول الاوتوماتيك</h1>
+<h1>جدول الاوتوماتيك 1</h1>
 
 <div class="overlay" id="overlay"></div>
 
+<!-- فورم الحجز -->
 <div class="popup-form" id="popupForm">
   <button class="close-btn" onclick="closeForm()">X</button>
   <h3>احجز المعاد</h3>
@@ -32,10 +33,12 @@
     <input type="password" name="password" placeholder="ID" required>
     <input type="text" name="session_day_hour" id="sessionDayHour" readonly>
     <input type="tel" name="phone" placeholder="رقم الهاتف" required>
+    <input type="hidden" name="table_id" value="1">
     <input type="submit" value="حجز">
   </form>
 </div>
 
+<!-- فورم الإلغاء -->
 <div class="popup-form" id="cancelForm">
   <button class="close-btn" onclick="closeCancelForm()">X</button>
   <h3>إلغاء الحجز</h3>
@@ -43,11 +46,13 @@
     <input type="password" name="cancel_id" placeholder="أدخل ID الخاص بك" required>
     <input type="hidden" name="session_day_hour" id="cancelSessionDayHour">
     <input type="hidden" name="session_type" value="automatic">
+    <input type="hidden" name="table_id" value="1">
     <input type="submit" value="الغاء المعاد">
   </form>
 </div>
 
 <div class="tables-container">
+  <!-- الجدول الأول -->
   <div class="table-wrapper">
     <table class="table">
       <tr>
@@ -63,10 +68,45 @@
       <tr>
           <td>الساعة {{ hour }}</td>
           {% for day in ["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"] %}
-              {% set day_hour_label = "يوم " ~ day ~ " الساعة " ~ hour %}
+              {% set day_hour_label = "جدول1 - يوم " ~ day ~ " الساعة " ~ hour %}
               <td>
                   {% set names = booked_slots_names.get(day_hour_label, []) %}
-                  {% for i in range(2) %} {# MAX_CAPACITY = 2 #}
+                  {% for i in range(2) %}
+                      {% if i < names|length %}
+                          <span class="cancel-btn" onclick="openCancelForm('{{ day_hour_label }}')">{{ names[i] }}</span>
+                      {% else %}
+                          <button class="book-btn" onclick="openForm('{{ day_hour_label }}')">احجز</button>
+                      {% endif %}
+                      <br>
+                  {% endfor %}
+              </td>
+          {% endfor %}
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+
+  <!-- الجدول الثاني -->
+  <h1>جدول الاوتوماتيك 2</h1>
+  <div class="table-wrapper">
+    <table class="table">
+      <tr>
+          <th>الساعة</th>
+          <th>السبت</th>
+          <th>الأحد</th>
+          <th>الاثنين</th>
+          <th>الثلاثاء</th>
+          <th>الأربعاء</th>
+          <th>الخميس</th>
+      </tr>
+      {% for hour in ["10 ص","11 ص","12 م","1 م","2 م","3 م","4 م","5 م","6 م","7 م"] %}
+      <tr>
+          <td>الساعة {{ hour }}</td>
+          {% for day in ["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"] %}
+              {% set day_hour_label = "جدول2 - يوم " ~ day ~ " الساعة " ~ hour %}
+              <td>
+                  {% set names = booked_slots_names.get(day_hour_label, []) %}
+                  {% for i in range(2) %}
                       {% if i < names|length %}
                           <span class="cancel-btn" onclick="openCancelForm('{{ day_hour_label }}')">{{ names[i] }}</span>
                       {% else %}
