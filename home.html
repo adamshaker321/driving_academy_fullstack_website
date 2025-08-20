@@ -127,12 +127,17 @@
 .main-content {
     padding: 130px 20px 20px;
     text-align: center;
-    font-size: 40px;
+    font-size: 32px;
     min-height: 70vh;
 }
 
+
 /* تنسيق العناصر داخل القائمة */
 .main-content ul li {
+    padding-right: 60px; /* تزود الرقم عشان تزق الكلام أكتر يمين */
+    padding-bottom: 60px; /* تزود الرقم عشان تزق الكلام أكتر يمين */
+    text-align: right;   /* يتأكد إن الكلام مظبوط لليمين */
+
     margin-bottom: 30px; /* مسافة بين السطور */
     opacity: 0; /* نخليها شفافة الأول */
     animation: fadeInUp 3s ease forwards;
@@ -253,7 +258,6 @@
 <div class="sidebar active" id="sidebar">
     <a href="/booking">احجز مواعيد حصصك</a>
     <a href="/login">سجل الدخول لحسابك</a>
-    <a href="/admin"> Admin</a>
 </div>
 
 <div class="main-content">

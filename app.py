@@ -482,43 +482,52 @@ def remove_review():
 
 @app.route("/login",methods=["GET","POST"])
 def login():
-    message=None
+    message = None
     if request.method == 'POST':
         user_id = request.form['client_id']
         user_name = request.form['client_name']
         conn = get_connection()
         cursor = conn.cursor()
 
-        # نشوف إذا الـ ID موجود
-        cursor.execute("SELECT id,name FROM clients WHERE id = %s", (user_id,))
-        existing_client = cursor.fetchall()
-        valid=False
-        for client in existing_client:
-            if client[0]==user_id and client[1]==user_name:
-                valid=True
-                break
-        if valid:
-            cursor.execute("SELECT course FROM clients WHERE id = %s", (user_id,))
-            course= cursor.fetchall()[0]
-            if course[0] == 'manual':
-                cursor.execute("SELECT client_name,id,phone,session_day FROM client_manual_sessions WHERE id = %s", (user_id,))
-                sessions_manual = cursor.fetchall()
-                return render_template("client_page.html",sessions_manual=sessions_manual)
-            elif course[0] == 'automatic':    
-                cursor.execute("SELECT client_name,id,phone,session_day FROM client_automatic_sessions WHERE id = %s", (user_id,))
-                sessions_automatic = cursor.fetchall()
-                return render_template("client_page.html",sessions_automatic=sessions_automatic)
-            elif course[0] == 'mix':
-                cursor.execute("SELECT client_name,id,phone,session_day FROM client_manual_sessions WHERE id = %s", (user_id,))
-                sessions_manual = cursor.fetchall()
-                cursor.execute("SELECT client_name,id,phone,session_day FROM client_automatic_sessions WHERE id = %s", (user_id,))
-                sessions_automatic = cursor.fetchall()
-                return render_template("client_page.html",sessions_manual=sessions_manual,sessions_automatic=sessions_automatic)
-        else :
-            message='ادخل بيانات صحيحة !'
+        # نشوف إذا الـ Admin موجود
+        cursor.execute(
+            "SELECT admin_id, admin_name FROM admins WHERE admin_id = %s AND admin_name = %s",
+            (user_id, user_name)
+        )
+        existing_admin = cursor.fetchone()
 
-            return render_template("login.html",message=message)    
-    return render_template("login.html")    
+        if existing_admin:
+            return redirect("/dashboard")   
+
+        # check if the user is a client
+        cursor.execute("SELECT id, name, course FROM clients WHERE id = %s AND name = %s", (user_id, user_name))
+        existing_client = cursor.fetchone()
+
+        if existing_client:
+            course = existing_client[2]
+
+            if course == 'manual':
+                cursor.execute("SELECT client_name, id, phone, session_day FROM client_manual_sessions WHERE id = %s", (user_id,))
+                sessions_manual = cursor.fetchall()
+                return render_template("client_page.html", sessions_manual=sessions_manual)
+
+            elif course == 'automatic':
+                cursor.execute("SELECT client_name, id, phone, session_day FROM client_automatic_sessions WHERE id = %s", (user_id,))
+                sessions_automatic = cursor.fetchall()
+                return render_template("client_page.html", sessions_automatic=sessions_automatic)
+
+            elif course == 'mix':
+                cursor.execute("SELECT client_name, id, phone, session_day FROM client_manual_sessions WHERE id = %s", (user_id,))
+                sessions_manual = cursor.fetchall()
+                cursor.execute("SELECT client_name, id, phone, session_day FROM client_automatic_sessions WHERE id = %s", (user_id,))
+                sessions_automatic = cursor.fetchall()
+                return render_template("client_page.html", sessions_manual=sessions_manual, sessions_automatic=sessions_automatic)
+
+        else:
+            message = 'ادخل بيانات صحيحة !'
+            return render_template("login.html", message=message)
+
+    return render_template("login.html")
 
 @app.route("/client_page")
 def client_page():
