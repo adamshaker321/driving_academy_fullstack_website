@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}بيانات ال admins{% endblock %}
+
+{% block styles %}
+    <style>
+        body {
+            font-family: 'Tahoma', sans-serif;
+            background: #f3f6f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #388e3c;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: #388e3c;
+            color: white;
+            font-size: 16px;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #999;
+            padding: 15px;
+        }
+    </style>
+{%endblock%}
+{%block content%}
+<h2> بيانات ال admins</h2>
+    <table>
+        <tr>
+            <th>الاسم</th>
+            <th>الكود</th>
+        </tr>
+        {% if data %}
+            {% for admin in data %}
+            <tr>
+                <td>{{ admin[0] }}</td>
+                <td>{{ admin[1] }}</td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr><td colspan="3" class="no-data">لا يوجد عملاء</td></tr>
+        {% endif %}
+    </table>
+
+    
+    
+{%endblock%}

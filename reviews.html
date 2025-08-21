@@ -62,6 +62,7 @@
                 {% endif %}
                 <p>{{ review.caption if review.caption else "لا يوجد وصف" }}</p>
                 <small>📅 {{ review.publish_date }}</small>
+                <small> {{ review.id }}</small>
             </div>
         {% endfor %}
     </div>

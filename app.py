@@ -8,75 +8,59 @@ from db_config import get_connection
 app = Flask(__name__)
 
 
-
-def reset_week(table_number):
+def reset_weeks():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # آخر أسبوع مسجّل للجدول
-    cursor.execute("SELECT * FROM weeks WHERE table_number=%s ORDER BY end_date DESC LIMIT 1", (table_number,))
-    last_week = cursor.fetchone()
+    today = datetime.date.today()
 
-    today = datetime.today().date()
+    # هات آخر جدولين
+    cursor.execute("SELECT * FROM weeks ORDER BY end_date DESC LIMIT 2")
+    last_two = cursor.fetchall()
 
-    if not last_week:
-        new_start = today
-        new_end = today + timedelta(days=5)  
-        cursor.execute(
-            "INSERT INTO weeks (table_number, start_date, end_date) VALUES (%s, %s, %s)",
-            (table_number, new_start, new_end)
-        )
-        conn.commit()
-        conn.close()
+    if not last_two:
         return
+    
+    last_week = last_two[0]  # آخر جدول
+    second_last_week = last_two[1] if len(last_two) > 1 else None
 
     if today > last_week['end_date']:
-        # بداية الأسبوع الجديد بعد آخر نهاية
-        new_start = last_week['end_date'] + timedelta(days=1)
-        new_end = new_start + timedelta(days=5)  # أسبوع 6 أيام
-        
-        # امسح الحجوزات القديمة للجدول ده
-        cursor.execute("DELETE FROM client_manual_sessions WHERE table_number=%s", (table_number,))
-        cursor.execute("DELETE FROM client_automatic_sessions WHERE table_number=%s", (table_number,))
+        # نبدأ جدول جديد بعد آخر جدول
+        new_start = last_week['end_date'] + datetime.timedelta(days=2)  # السبت اللي بعده
+        new_end = new_start + datetime.timedelta(days=5)
 
-        # سجل الأسبوع الجديد
-        cursor.execute(
-            "INSERT INTO weeks (table_number, start_date, end_date) VALUES (%s,%s,%s)",
-            (table_number, new_start, new_end)
-        )
+        cursor.execute("""
+            INSERT INTO weeks (start_date, end_date)
+            VALUES (%s, %s)
+        """, (new_start, new_end))
         conn.commit()
 
+        # امسح حجوزات الجدول الأقدم (اللي خلص)
+        if second_last_week:
+            cursor.execute("DELETE FROM client_manual_sessions WHERE table_number = %s", (second_last_week['table_number'],))
+            cursor.execute("DELETE FROM client_automatic_sessions WHERE table_number = %s", (second_last_week['table_number'],))
+            conn.commit()
+
+    cursor.close()
     conn.close()
+
 
 @app.route("/home")
 def home():
     return render_template("home.html")
-@app.route("/admin",methods=['GET','POST'])
-def admin():
-    message=False
-    if request.method=='POST':
-        admin_id=request.form['Admin_id']
-        admin_name=request.form['Admin_name']
-        conn=get_connection()
-        cursor=conn.cursor()
-        cursor.execute("select admin_id ,admin_name from admins")
-        rows=cursor.fetchall()
-        for row in rows:
-            if admin_id ==row[0] and admin_name == row[1]:
-                return redirect("/dashboard")
-            else:                
-                message='⚠️ ادخل رمز ومستخدم صحيحين '
-                return render_template("admin.html",message=message)
 
-        cursor.close()
-        conn.close()    
-    return render_template("admin.html")
 @app.route("/dashboard")
 def dashboard():
     return render_template("dashboard.html")
+
+@app.route("/manager_page")
+def manager_page():
+    return render_template("manager_page.html")
+
 @app.route("/offers")
 def offers():
     return render_template("offers.html")
+
 @app.route("/register",methods=['GET','POST'])
 def register():
     message=False
@@ -243,7 +227,7 @@ def manual_booking():
                         more_than_two_sessions = "⚠️ لقد قمت بحجز أكثر من معادين في هذا الأسبوع. "
                         
                 else:
-                    message = "⚠ العميل غير موجود."
+                    message = "⚠ ادخل كود صحيح"
 
     # جلب أسماء العملاء لكل slot
     cursor.execute("SELECT session_day, client_name FROM client_manual_sessions")
@@ -326,7 +310,7 @@ def automatic_booking():
                     else:
                         more_than_two_sessions = "⚠️ لقد قمت بحجز أكثر من معادين في هذا الأسبوع. "
                 else:
-                    message = "⚠ العميل غير موجود."
+                    message = "⚠ ادخل كود صحيح"
 
     # جلب أسماء العملاء لكل slot
     cursor.execute("SELECT session_day, client_name FROM client_automatic_sessions")
@@ -348,7 +332,6 @@ def automatic_booking():
         more_than_two_sessions=more_than_two_sessions,
         message=message
     )
-
 
 @app.route("/cancel_booking", methods=["POST"])
 def cancel_booking():
@@ -414,6 +397,7 @@ def add_review():
     if request.method == "POST":
         file = request.files['file']
         caption = request.form.get('description', '')
+        
 
         if file:
             filename = secure_filename(file.filename)
@@ -427,8 +411,8 @@ def add_review():
             cursor = conn.cursor()
             cursor.execute("""
                 INSERT INTO file_reviews (file_name, file_path, caption, publish_date)
-                VALUES (%s, %s, %s, %s)
-            """, (filename, f"static/files/{filename}", caption,datetime.datetime.today()))
+                VALUES ( %s, %s, %s,%s)
+            """, ( filename, f"static/files/{filename}", caption,datetime.datetime.today()))
             conn.commit()
             cursor.close()
             conn.close()
@@ -448,37 +432,33 @@ def reviews():
     return render_template("reviews.html", reviews=reviews)
 @app.route("/remove_review",methods=["GET","POST"])
 def remove_review():
+    invalid_message = None
     if request.method == "POST":
-        filename = request.form['filename']
+        file_id = request.form['file_number']
 
         conn = get_connection()
         cursor = conn.cursor()
 
         #validation
-        cursor.execute("SELECT file_path FROM file_reviews WHERE file_name = %s", (filename,))
+        cursor.execute("SELECT id , file_path FROM file_reviews WHERE id = %s", (file_id,))
         file_data = cursor.fetchone()
 
         if file_data:
-            file_path = file_data[0]
-
-            
-            cursor.execute("DELETE FROM file_reviews WHERE file_name = %s", (filename,))
+            cursor.execute("DELETE FROM file_reviews WHERE id = %s", (file_id,))
             conn.commit()
             cursor.close()
             conn.close()
-
+            file_path = file_data[1]
+            if os.path.exists(file_path):
+                os.remove(file_path)
             
-            full_path = os.path.join(os.getcwd(), file_path)
-            if os.path.exists(full_path):
-                os.remove(full_path)
-
             return redirect(url_for("dashboard"))
         else:
             cursor.close()
             conn.close()
-            return "❌ الملف غير موجود", 404
-
-    return render_template("remove_review.html")    
+            invalid_message = "⚠️ رقم الملف غير صحيح !"
+            
+    return render_template("remove_review.html", invalid_message=invalid_message)    
 
 @app.route("/login",methods=["GET","POST"])
 def login():
@@ -498,6 +478,17 @@ def login():
 
         if existing_admin:
             return redirect("/dashboard")   
+
+        # check if the user is the manager
+        
+        cursor.execute("SELECT manager_id,manager_name FROM managers WHERE manager_id = %s AND manager_name = %s", (user_id, user_name))
+    
+        existing_manager = cursor.fetchone()
+    
+        if existing_manager:
+            return redirect("/manager_page")
+
+
 
         # check if the user is a client
         cursor.execute("SELECT id, name, course FROM clients WHERE id = %s AND name = %s", (user_id, user_name))
@@ -528,6 +519,69 @@ def login():
             return render_template("login.html", message=message)
 
     return render_template("login.html")
+
+
+@app.route("/add_admin", methods=["GET", "POST"])
+def add_admin():
+    message = None      
+    if request.method == 'POST':
+        admin_id = request.form['adm_id']
+        admin_name = request.form['adm_name']
+        conn = get_connection()
+        cursor = conn.cursor()
+        # نشوف إذا الـ Admin موجود
+        cursor.execute("SELECT admin_id FROM admins WHERE admin_id = %s", (admin_id,))
+        existing_admin = cursor.fetchone()      
+        if existing_admin:
+            message = 'هذا الكود مستخدم بالفعل'
+            cursor.close()
+            conn.close()
+            return render_template("add_admin.html", message=message)
+        else:
+            # لو مش موجود يضيفه
+            cursor.execute("INSERT INTO admins (admin_id, admin_name) VALUES (%s, %s)", 
+                           (admin_id, admin_name))
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return redirect('/manager_page')
+    return render_template("add_admin.html", message=message)
+
+@app.route("/remove_admin", methods=["GET", "POST"])    
+def remove_admin():
+    message = None
+    if request.method == 'POST':
+        admin_id = request.form['adm_id']
+        conn = get_connection()
+        cursor = conn.cursor()
+        # تحقق إذا الـ Admin موجود
+        cursor.execute("SELECT admin_id FROM admins WHERE admin_id = %s", (admin_id,))
+        existing_admin = cursor.fetchone()
+        if existing_admin:
+            # حذف الـ Admin
+            cursor.execute("DELETE FROM admins WHERE admin_id = %s", (admin_id,))
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return redirect("/manager_page")
+        else:
+            message = 'هذا الكود غير موجود !'
+            cursor.close()
+            conn.close()
+            return render_template("remove_admin.html", message=message)
+        
+    return render_template("remove_admin.html", message=message)
+
+@app.route("/admins_data")
+def admins_data():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT admin_name, admin_id FROM admins")
+    data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return render_template("admins_data.html", data=data)
+
 
 @app.route("/client_page")
 def client_page():

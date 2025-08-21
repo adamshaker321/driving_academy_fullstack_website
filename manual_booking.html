@@ -90,7 +90,7 @@
                   {% set names = booked_slots_names.get(day_hour_label, []) %}
                   {% for i in range(num_cells) %}
                       {% if i < names|length %}
-                          <span class="cancel-btn" onclick="openCancelForm('{{ day_hour_label }}')">{{ names[i] }}</span>
+                          <span class="cancel-btn" onclick="openCancelForm('{{ day_hour_label }}')">{{ names[i] }}(الغاء الحجز)</span>
                       {% else %}
                           <button class="book-btn" onclick="openForm('{{ day_hour_label }}')">احجز</button>
                       {% endif %}
@@ -130,7 +130,7 @@
                   {% set names = booked_slots_names.get(day_hour_label, []) %}
                   {% for i in range(num_cells) %}
                       {% if i < names|length %}
-                          <span class="cancel-btn" onclick="openCancelForm('{{ day_hour_label }}')">{{ names[i] }}</span>
+                          <span class="cancel-btn" onclick="openCancelForm('{{ day_hour_label }}')">{{ names[i] }}(الغاء الحجز)</span>
                       {% else %}
                           <button class="book-btn" onclick="openForm('{{ day_hour_label }}')">احجز</button>
                       {% endif %}
