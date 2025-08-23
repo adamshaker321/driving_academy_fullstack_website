@@ -9,7 +9,104 @@ app = Flask(__name__)
 
 
 
+def get_current_period_manual():
+    # اليوم اللي عايز تبدأ منه
+    first_saturday = datetime.date(2025, 8, 30)  # مثال البداية
 
+    today = datetime.date.today()
+    diff_days = (today - first_saturday).days
+    weeks_passed = diff_days // 7
+
+    # الأسبوع الحالي
+    if weeks_passed % 2 == 0:
+        start = first_saturday + timedelta(weeks=weeks_passed)
+    else:
+        start = first_saturday + timedelta(weeks=weeks_passed + 1)
+
+    end = start + timedelta(days=5)  # الخميس
+
+    # تعديل: لو الأسبوع خلص قبل اليوم الحالي، يبقى الأسبوع الجديد يبقى من السبت بعد السبت التالي
+    if today > end:
+        # حساب عدد أيام للوصول للسبت التالي للأسبوع القادم
+        days_to_next_next_saturday = ((today - start).days // 7 + 2) * 7
+        start = first_saturday + timedelta(days=days_to_next_next_saturday)
+        end = start + timedelta(days=5)
+
+    return start, end
+def get_current_period_manual_2():
+    first_saturday = datetime.date(2025, 9, 6)  # التاريخ اللي انت عايزه
+
+    today = datetime.date.today()
+
+    # لو اليوم قبل أول سبت → نبدأ من أول سبت
+    if today < first_saturday:
+        start = first_saturday
+    else:
+        diff_days = (today - first_saturday).days
+        weeks_passed = diff_days // 7
+        if weeks_passed % 2 == 0:
+            start = first_saturday + timedelta(weeks=weeks_passed)
+        else:
+            start = first_saturday + timedelta(weeks=weeks_passed + 1)
+
+    end = start + timedelta(days=5)  # الخميس
+
+    # لو الأسبوع خلص قبل اليوم الحالي
+    if today > end:
+        days_to_next_next_saturday = ((today - start).days // 7 + 2) * 7
+        start = first_saturday + timedelta(days=days_to_next_next_saturday)
+        end = start + timedelta(days=5)
+
+    return start, end
+def get_current_period_auto():
+    # اليوم اللي عايز تبدأ منه
+    first_saturday = datetime.date(2025, 8, 30)  # مثال البداية
+
+    today = datetime.date.today()
+    diff_days = (today - first_saturday).days
+    weeks_passed = diff_days // 7
+
+    # الأسبوع الحالي
+    if weeks_passed % 2 == 0:
+        start = first_saturday + timedelta(weeks=weeks_passed)
+    else:
+        start = first_saturday + timedelta(weeks=weeks_passed + 1)
+
+    end = start + timedelta(days=5)  # الخميس
+
+    # تعديل: لو الأسبوع خلص قبل اليوم الحالي، يبقى الأسبوع الجديد يبقى من السبت بعد السبت التالي
+    if today > end:
+        # حساب عدد أيام للوصول للسبت التالي للأسبوع القادم
+        days_to_next_next_saturday = ((today - start).days // 7 + 2) * 7
+        start = first_saturday + timedelta(days=days_to_next_next_saturday)
+        end = start + timedelta(days=5)
+
+    return start, end
+def get_current_period_auto_2():
+    first_saturday = datetime.date(2025, 9, 6)  # التاريخ اللي انت عايزه
+
+    today = datetime.date.today()
+
+    # لو اليوم قبل أول سبت → نبدأ من أول سبت
+    if today < first_saturday:
+        start = first_saturday
+    else:
+        diff_days = (today - first_saturday).days
+        weeks_passed = diff_days // 7
+        if weeks_passed % 2 == 0:
+            start = first_saturday + timedelta(weeks=weeks_passed)
+        else:
+            start = first_saturday + timedelta(weeks=weeks_passed + 1)
+
+    end = start + timedelta(days=5)  # الخميس
+
+    # لو الأسبوع خلص قبل اليوم الحالي
+    if today > end:
+        days_to_next_next_saturday = ((today - start).days // 7 + 2) * 7
+        start = first_saturday + timedelta(days=days_to_next_next_saturday)
+        end = start + timedelta(days=5)
+
+    return start, end
 
 
 
@@ -155,6 +252,14 @@ def manual_booking():
     conn = get_connection()
     cursor = conn.cursor()
 
+    start_date, end_date = get_current_period_manual()
+    today = datetime.date.today()
+
+    # لو اليوم بعد نهاية الفترة → نمسح الحجوزات
+    if today > end_date:
+        cursor.execute("DELETE FROM client_manual_sessions")
+        conn.commit()
+
     message = None  
     already_booked_message = None
     booked_confirmed_message = None
@@ -166,10 +271,8 @@ def manual_booking():
         session_date = request.form['session_day_hour']   
         phone_number = request.form['phone']              
 
-        # السعة القصوى لكل slot
         MAX_CAPACITY = 3  
 
-        # عدد الحجوزات الحالية في نفس slot
         cursor.execute("""
             SELECT COUNT(*) FROM client_manual_sessions
             WHERE session_day = %s
@@ -179,7 +282,6 @@ def manual_booking():
         if current_bookings >= MAX_CAPACITY:
             message = "⚠ المعاد ده اتحجز بالكامل."
         else:
-            # التأكد إن العميل مايحجزش نفس slot مرتين
             cursor.execute("""
                 SELECT COUNT(*) FROM client_manual_sessions
                 WHERE id = %s AND session_day = %s
@@ -189,28 +291,24 @@ def manual_booking():
             if already_booked:
                 already_booked_message = "⚠ انت حجزت المعاد ده قبل كده."
             else:
-                # التأكد إن العميل موجود
                 cursor.execute("SELECT id FROM clients WHERE id = %s", (client_id,))
                 client_exists = cursor.fetchone()
 
                 if client_exists:
                     cursor.execute("SELECT count(*) FROM client_manual_sessions where id = %s", (client_id,))
-                    total_sessions_per_week= cursor.fetchone()[0]
+                    total_sessions_per_week = cursor.fetchone()[0]
                     if total_sessions_per_week < 2:
                         cursor.execute("""
                             INSERT INTO client_manual_sessions (id, client_name, phone, session_day, book_date)
                             VALUES (%s, %s, %s, %s, %s)
                         """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))
-                        cursor.execute("insert into manual_sessions_per_client(id,session_day) values(%s,%s)",(client_id,session_date))
                         conn.commit()
                         booked_confirmed_message = "✅ تم الحجز بنجاح."
                     else:
                         more_than_two_sessions = "⚠️ وصلت الحد الاقصى هذا الاسبوع. "
-                        
                 else:
                     message = "⚠ ادخل كود صحيح"
 
-    # جلب أسماء العملاء لكل slot
     cursor.execute("SELECT session_day, client_name FROM client_manual_sessions")
     rows = cursor.fetchall()
     booked_slots_names = {}
@@ -225,12 +323,13 @@ def manual_booking():
     return render_template(
         "manual_booking.html",
         booked_slots_names=booked_slots_names,
-        already_booked_message=already_booked_message if 'already_booked_message' in locals() else None,
-        booked_confirmed_message=booked_confirmed_message ,
-        more_than_two_sessions=more_than_two_sessions ,    
-        message=message
+        already_booked_message=already_booked_message,
+        booked_confirmed_message=booked_confirmed_message,
+        more_than_two_sessions=more_than_two_sessions,    
+        message=message,
+        start_date=start_date,
+        end_date=end_date
     )
-
 
 
 
@@ -239,6 +338,14 @@ def manual_booking():
 def manual_booking_2():
     conn = get_connection()
     cursor = conn.cursor()
+
+    start_date, end_date = get_current_period_manual_2()
+    today = datetime.date.today()
+
+    # لو اليوم بعد نهاية الفترة → نمسح الحجوزات
+    if today > end_date:
+        cursor.execute("DELETE FROM client_manual_sessions_2")
+        conn.commit()
 
     message = None  
     already_booked_message = None
@@ -251,10 +358,8 @@ def manual_booking_2():
         session_date = request.form['session_day_hour']   
         phone_number = request.form['phone']              
 
-        # السعة القصوى لكل slot
         MAX_CAPACITY = 3  
 
-        # عدد الحجوزات الحالية في نفس slot
         cursor.execute("""
             SELECT COUNT(*) FROM client_manual_sessions_2
             WHERE session_day = %s
@@ -264,7 +369,6 @@ def manual_booking_2():
         if current_bookings >= MAX_CAPACITY:
             message = "⚠ المعاد ده اتحجز بالكامل."
         else:
-            # التأكد إن العميل مايحجزش نفس slot مرتين
             cursor.execute("""
                 SELECT COUNT(*) FROM client_manual_sessions_2
                 WHERE id = %s AND session_day = %s
@@ -274,29 +378,24 @@ def manual_booking_2():
             if already_booked:
                 already_booked_message = "⚠ انت حجزت المعاد ده قبل كده."
             else:
-                # التأكد إن العميل موجود
                 cursor.execute("SELECT id FROM clients WHERE id = %s", (client_id,))
                 client_exists = cursor.fetchone()
 
                 if client_exists:
                     cursor.execute("SELECT count(*) FROM client_manual_sessions_2 where id = %s", (client_id,))
-                    total_sessions_per_week= cursor.fetchone()[0]
+                    total_sessions_per_week = cursor.fetchone()[0]
                     if total_sessions_per_week < 2:
                         cursor.execute("""
                             INSERT INTO client_manual_sessions_2 (id, client_name, phone, session_day, book_date)
                             VALUES (%s, %s, %s, %s, %s)
                         """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))
-                        cursor.execute("insert into manual_sessions_per_client(id,session_day) values(%s,%s)",(client_id,session_date))
-
                         conn.commit()
                         booked_confirmed_message = "✅ تم الحجز بنجاح."
                     else:
                         more_than_two_sessions = "⚠️ وصلت الحد الاقصى هذا الاسبوع. "
-                        
                 else:
                     message = "⚠ ادخل كود صحيح"
 
-    # جلب أسماء العملاء لكل slot
     cursor.execute("SELECT session_day, client_name FROM client_manual_sessions_2")
     rows = cursor.fetchall()
     booked_slots_names = {}
@@ -311,10 +410,12 @@ def manual_booking_2():
     return render_template(
         "manual_booking_2.html",
         booked_slots_names=booked_slots_names,
-        already_booked_message=already_booked_message if 'already_booked_message' in locals() else None,
-        booked_confirmed_message=booked_confirmed_message ,
-        more_than_two_sessions=more_than_two_sessions ,    
-        message=message
+        already_booked_message=already_booked_message,
+        booked_confirmed_message=booked_confirmed_message,
+        more_than_two_sessions=more_than_two_sessions,    
+        message=message,
+        start_date=start_date,
+        end_date=end_date
     )
 
 
@@ -324,6 +425,12 @@ def manual_booking_2():
 def automatic_booking():
     conn = get_connection()
     cursor = conn.cursor()
+    start_date, end_date = get_current_period_auto()
+    today = datetime.date.today()
+    # لو اليوم بعد نهاية الفترة → نمسح الحجوزات
+    if today > end_date:
+        cursor.execute("DELETE FROM client_automatic_sessions")
+        conn.commit()
 
     message = None  
     already_booked_message = None
@@ -396,8 +503,102 @@ def automatic_booking():
         already_booked_message=already_booked_message ,
         booked_confirmed_message=booked_confirmed_message,
         more_than_two_sessions=more_than_two_sessions,
-        message=message
+        message=message,
+        start_date=start_date,
+        end_date=end_date
+
     )
+
+
+@app.route("/automatic_booking_2",methods=['GET','POST'])
+
+def automatic_booking_2():
+    conn = get_connection()
+    cursor = conn.cursor()
+    start_date, end_date = get_current_period_auto_2()
+    today = datetime.date.today()
+    # لو اليوم بعد نهاية الفترة → نمسح الحجوزات
+    if today > end_date:
+        cursor.execute("DELETE FROM client_automatic_sessions_2")
+        conn.commit()
+
+    message = None  
+    already_booked_message = None
+    booked_confirmed_message = None
+    more_than_two_sessions = None
+
+    if request.method == 'POST':
+        client_name = request.form['name']                
+        client_id = request.form['password']              
+        session_date = request.form['session_day_hour']   
+        phone_number = request.form['phone']              
+
+        MAX_CAPACITY = 2  # السعة القصوى لكل slot
+
+        # عدد الحجوزات الحالية في نفس slot
+        cursor.execute("""
+            SELECT COUNT(*) FROM client_automatic_sessions_2
+            WHERE session_day = %s
+        """, (session_date,))
+        current_bookings = cursor.fetchone()[0]
+
+        if current_bookings >= MAX_CAPACITY:
+            message = "⚠ المعاد ده اتحجز بالكامل."
+        else:
+            # التأكد إن العميل مايحجزش نفس slot مرتين
+            cursor.execute("""
+                SELECT COUNT(*) FROM client_automatic_sessions_2
+                WHERE id = %s AND session_day = %s
+            """, (client_id, session_date))
+            already_booked = cursor.fetchone()[0] > 0
+
+            if already_booked:
+                already_booked_message = "⚠ انت حجزت المعاد ده قبل كده."
+            else:
+                # التأكد إن العميل موجود
+                cursor.execute("SELECT id FROM clients WHERE id = %s", (client_id,))
+                client_exists = cursor.fetchone()
+
+                if client_exists:
+                    cursor.execute("SELECT count(*) FROM client_automatic_sessions_2 where id = %s", (client_id,))
+                    total_sessions_per_week = cursor.fetchone()[0]  
+                    if total_sessions_per_week < 2:
+                        
+                        cursor.execute("""
+                            INSERT INTO client_automatic_sessions_2 (id, client_name, phone, session_day, book_date)
+                            VALUES (%s, %s, %s, %s, %s)
+                        """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))
+                        conn.commit()
+                        booked_confirmed_message = "✅ تم الحجز بنجاح."
+                    else:
+                        more_than_two_sessions = "⚠️ وصلت الحد الاقصى هذا الاسبوع. "
+                else:
+                    message = "⚠ ادخل كود صحيح"
+
+    # جلب أسماء العملاء لكل slot
+    cursor.execute("SELECT session_day, client_name FROM client_automatic_sessions_2")
+    rows = cursor.fetchall()
+    booked_slots_names = {}
+    for session, name in rows:
+        if session not in booked_slots_names:
+            booked_slots_names[session] = []
+        booked_slots_names[session].append(name)
+
+    cursor.close()
+    conn.close()
+
+    return render_template(
+        "automatic_booking_2.html",
+        booked_slots_names=booked_slots_names,
+        already_booked_message=already_booked_message ,
+        booked_confirmed_message=booked_confirmed_message,
+        more_than_two_sessions=more_than_two_sessions,
+        message=message,
+        start_date=start_date,
+        end_date=end_date
+
+    )
+
 
 @app.route("/cancel_booking", methods=["POST"])
 def cancel_booking():

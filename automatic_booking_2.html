@@ -33,7 +33,7 @@
 {% endblock %}
 
 {% block content %}
-<h1>(الاسبوع الحالي)جدول الاوتوماتيك</h1>
+<h1>(الاسبوع القادم)جدول الاوتوماتيك</h1>
 {% if message %}
   <div class="alert-message">{{ message }}</div>
 {% elif already_booked_message %}
@@ -52,7 +52,7 @@
 <div class="popup-form" id="popupForm">
   <button class="close-btn" onclick="closeForm()">X</button>
   <h3>احجز المعاد</h3>
-  <form method="POST" action="/automatic_booking">
+  <form method="POST" action="/automatic_booking_2">
     <input type="text" name="name" placeholder="الاسم" required>
     <input type="password" name="password" placeholder="ID" required>
     <input type="text" name="session_day_hour" id="sessionDayHour" readonly>
@@ -62,11 +62,11 @@
   </form>
 </div>
 
-<!-- فورم الإلغاء -->
+<!-- فورم الإلغاء -->       
 <div class="popup-form" id="cancelForm">
   <button class="close-btn" onclick="closeCancelForm()">X</button>
   <h3>إلغاء الحجز</h3>
-  <form method="POST" action="/cancel_booking">
+  <form method="POST" action="/cancel_booking_2">
     <input type="password" name="cancel_id" placeholder="أدخل ID الخاص بك" required>
     <input type="hidden" name="session_day_hour" id="cancelSessionDayHour">
     <input type="hidden" name="session_type" value="automatic">
@@ -80,7 +80,7 @@
   <div class="table-wrapper">
         <div style="display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 10px;">
       <h1>الحجز من {{ start_date }} لحد {{ end_date }}</h1>
-      <a href="{{ url_for('automatic_booking_2') }}" class="next-week-btn">الأسبوع القادم</a>
+      <a href="{{ url_for('automatic_booking') }}" class="next-week-btn">الأسبوع الحالي</a>
     </div>
 
     <table class="table">
