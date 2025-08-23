@@ -302,6 +302,10 @@ def manual_booking():
                             INSERT INTO client_manual_sessions (id, client_name, phone, session_day, book_date)
                             VALUES (%s, %s, %s, %s, %s)
                         """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))
+                        cursor.execute("""
+                            INSERT INTO manual_sessions_per_client (id, client_name, phone, session_day, book_date)
+                            VALUES (%s, %s, %s, %s, %s)         
+                        """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))
                         conn.commit()
                         booked_confirmed_message = "✅ تم الحجز بنجاح."
                     else:
@@ -387,6 +391,10 @@ def manual_booking_2():
                     if total_sessions_per_week < 2:
                         cursor.execute("""
                             INSERT INTO client_manual_sessions_2 (id, client_name, phone, session_day, book_date)
+                            VALUES (%s, %s, %s, %s, %s)
+                        """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))
+                        cursor.execute("""
+                            INSERT INTO manual_sessions_per_client (id, client_name, phone, session_day, book_date)
                             VALUES (%s, %s, %s, %s, %s)
                         """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))
                         conn.commit()
@@ -478,6 +486,10 @@ def automatic_booking():
                             INSERT INTO client_automatic_sessions (id, client_name, phone, session_day, book_date)
                             VALUES (%s, %s, %s, %s, %s)
                         """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))
+                        cursor.execute("""
+                            INSERT INTO automatic_sessions_per_client (id, client_name, phone, session_day, book_date)
+                            VALUES (%s, %s, %s, %s, %s)         
+                        """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))             
                         conn.commit()
                         booked_confirmed_message = "✅ تم الحجز بنجاح."
                     else:
@@ -568,6 +580,10 @@ def automatic_booking_2():
                             INSERT INTO client_automatic_sessions_2 (id, client_name, phone, session_day, book_date)
                             VALUES (%s, %s, %s, %s, %s)
                         """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))
+                        cursor.execute("""
+                            INSERT INTO automatic_sessions_per_client (id, client_name, phone, session_day, book_date)
+                            VALUES (%s, %s, %s, %s, %s)         
+                        """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))     
                         conn.commit()
                         booked_confirmed_message = "✅ تم الحجز بنجاح."
                     else:
@@ -803,19 +819,19 @@ def login():
             course = existing_client[2]
 
             if course == 'manual':
-                cursor.execute("SELECT client_name, id, phone, session_day FROM client_manual_sessions WHERE id = %s", (user_id,))
+                cursor.execute("SELECT client_name, id, phone, session_day FROM manual_sessions_per_client WHERE id = %s", (user_id,))
                 sessions_manual = cursor.fetchall()
                 return render_template("client_page.html", sessions_manual=sessions_manual)
 
             elif course == 'automatic':
-                cursor.execute("SELECT client_name, id, phone, session_day FROM client_automatic_sessions WHERE id = %s", (user_id,))
+                cursor.execute("SELECT client_name, id, phone, session_day FROM automatic_sessions_per_client WHERE id = %s", (user_id,))
                 sessions_automatic = cursor.fetchall()
                 return render_template("client_page.html", sessions_automatic=sessions_automatic)
 
             elif course == 'mix':
-                cursor.execute("SELECT client_name, id, phone, session_day FROM client_manual_sessions WHERE id = %s", (user_id,))
+                cursor.execute("SELECT client_name, id, phone, session_day FROM manual_sessions_per_client WHERE id = %s", (user_id,))
                 sessions_manual = cursor.fetchall()
-                cursor.execute("SELECT client_name, id, phone, session_day FROM client_automatic_sessions WHERE id = %s", (user_id,))
+                cursor.execute("SELECT client_name, id, phone, session_day FROM automatic_sessions_per_client WHERE id = %s", (user_id,))
                 sessions_automatic = cursor.fetchall()
                 return render_template("client_page.html", sessions_manual=sessions_manual, sessions_automatic=sessions_automatic)
 
