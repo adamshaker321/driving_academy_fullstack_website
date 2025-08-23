@@ -132,38 +132,52 @@
     min-height: 70vh;
 }
 
-
-/* تنسيق العناصر داخل القائمة */
-.main-content ul li {
-    padding-right: 60px; /* تزود الرقم عشان تزق الكلام أكتر يمين */
-    padding-bottom: 60px; /* تزود الرقم عشان تزق الكلام أكتر يمين */
-    text-align: right;   /* يتأكد إن الكلام مظبوط لليمين */
-
-    margin-bottom: 30px; /* مسافة بين السطور */
-    opacity: 0; /* نخليها شفافة الأول */
-    animation: fadeInUp 3s ease forwards;
+/* الكروت بتاعة السطور */
+.main-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+    max-width: 700px;
 }
 
-/* نخلي كل سطر يظهر بعد التاني */
+.main-content ul li {
+    background: rgba(255,255,255,0.08);
+    border-radius: 15px;
+    padding: 25px;
+    margin: 20px 0;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: #00e6e6;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+    animation: fadeSlideIn 1s forwards;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+/* تأثير hover */
+.main-content ul li:hover {
+    transform: scale(1.05) translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+}
+
+/* ظهور متتالي */
 .main-content ul li:nth-child(1) {
-    animation-delay: 0.6s;
+    animation-delay: 0.5s;
 }
 .main-content ul li:nth-child(2) {
-    animation-delay: 0.75s;
+    animation-delay: 1s;
 }
 .main-content ul li:nth-child(3) {
-    animation-delay: 0.9s;
+    animation-delay: 1.5s;
 }
 
-/* أنيميشن */
-@keyframes fadeInUp {
-    from {
-        transform: translateY(30px);
-        opacity: 0;
-    }
+/* Animation */
+@keyframes fadeSlideIn {
     to {
-        transform: translateY(0);
         opacity: 1;
+        transform: translateY(0) scale(1);
     }
 }
 
@@ -172,11 +186,6 @@
     .sidebar.active ~ .menu-btn,
     .sidebar.active ~ .address {
         transform: translateX(-200px);
-    }
-
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(30px); }
-        to { opacity: 1; transform: translateY(0); }
     }
 
     .contact-section {
@@ -247,7 +256,7 @@
         <h1>A&N Driving Academy (Captain Ashraf)</h1>
     </div>
     <div class="top-links">
-        <a href="#contact">📞 Contact Us</a>
+        <a href="#contact">📞 تواصل معنا</a>
         <a href="/reviews">💬 آراء العملاء</a>
         <a href="/offers">📢 العروض الحالية للكورسات</a>
         <a href="/home">🏠 الصفحة الرئيسية</a>
@@ -262,10 +271,10 @@
 </div>
 
 <div class="main-content">
-    <ul style="list-style: none; padding: 0;">
-        <li><strong>أكتر من 5000 متدرب ناجح</strong></li>
-        <li><strong>مدربين محترفين</strong></li>
-        <li><strong>خبرة 10 اعوام في تعليم القيادة</strong></li>
+    <ul>
+        <li>أكتر من 5000 متدرب ناجح</li>
+        <li>مدربين محترفين</li>
+        <li>خبرة 10 اعوام في تعليم القيادة</li>
     </ul>
 </div>
 
@@ -311,7 +320,6 @@
         "{{ url_for('static', filename='background.jpg') }}",
     ];
     let currentIndex = 0;
-
 
     document.body.style.backgroundImage = `url('${backgrounds[currentIndex]}')`;
     setInterval(changeBackground, 2000);

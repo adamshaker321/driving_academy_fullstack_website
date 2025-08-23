@@ -1,115 +1,119 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-  <meta charset="UTF-8">
-  <title>اضافة رأي</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #141e30, #243b55);
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
+{% extends "base.html" %}
 
-    form {
-      background-color: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      padding: 40px;
-      width: 400px;
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
-      animation: fadeInUp 1.2s ease;
-    }
+{% block title %}حذف رأي{% endblock %}
 
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-      font-size: 26px;
-      color: #a51010;
-    }
+{% block styles %}
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to right, #141e30, #243b55);
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    position: relative;
+  }
 
-    label h2 {
-      font-size: 18px;
-      margin-bottom: 8px;
-      color: #e0e0e0;
-      text-align: right;
-    }
+  form {
+    background-color: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 40px;
+    width: 400px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+    animation: fadeInUp 1.2s ease;
+  }
 
-    input[type="file"],
-    input[type="text"] {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 20px;
-      border: none;
-      border-radius: 10px;
-      background-color: rgba(255, 255, 255, 0.1);
-      color: #fff;
-      font-size: 16px;
-      transition: 0.3s;
-    }
-    
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 26px;
+    color: #ff4c4c;
+  }
 
-    input[type="file"]:focus,
-    input[type="text"]:focus {
-      outline: none;
-      background-color: rgba(255, 255, 255, 0.2);
-      box-shadow: 0 0 10px #00e6e6;
-    }
-    
+  label h3 {
+    font-size: 18px;
+    margin-bottom: 8px;
+    color: #e0e0e0;
+    text-align: right;
+  }
 
-    input[type="submit"] {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      background: #921e1e;
-      color: #000;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.3s ease-in-out;
-    }
+  input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 16px;
+    transition: 0.3s;
+  }
 
-    input[type="submit"]:hover {
-      background: #00b3b3;
-      transform: scale(1.03);
-      box-shadow: 0 0 12px #00e6e6;
-    }
+  input[type="text"]:focus {
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 10px #00e6e6;
+  }
 
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-  </style>
-</head>
-<body>
+  input[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: #ff4c4c;
+    color: #000;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+  }
+
+  input[type="submit"]:hover {
+    background: #d93636;
+    transform: scale(1.03);
+    box-shadow: 0 0 12px #ff4c4c;
+  }
+
+  /* الرسالة */
+  .flash-message {
+    color: #ff4c4c;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 15px;
+    animation: slideFade 3s ease;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideFade {
+    0% { opacity: 0; transform: translateY(-20px); }
+    20% { opacity: 1; transform: translateY(0); }
+    80% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-20px); }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+  {% if invalid_message %}
+    <p class="flash-message">{{ invalid_message }}</p>
+  {% endif %}
 
   <form action="/remove_review" method="POST">
     <h2>📹 احذف رأي</h2>
 
     <div>
-      
-      <label><h2> ادخل رقم الفيديو</h2></label>
-      <input type="text" name="file_number" placeholder="رقم الفيديو">
-      
-      <input type="submit" value="حذف الرأي">
-    {% if invalid_message %}
-      <p style="color: red; text-align: center;">{{ invalid_message }}</p>
-    {% endif %}
+      <label><h3>ادخل رقم الفيديو</h3></label>
+      <input type="text" name="file_number" placeholder="رقم الفيديو" required>
     </div>
-    
-  </form>
 
-</body>
-</html>
+    <input type="submit" value="🗑️ حذف الرأي">
+  </form>
+{% endblock %}

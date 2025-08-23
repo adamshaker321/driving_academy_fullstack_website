@@ -8,6 +8,7 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
     color: #fff;
+    position: relative;
   }
 
   form {
@@ -88,44 +89,71 @@
   }
 
   @keyframes slideFade {
-    from {
-      opacity: 0;
-      transform: translateY(-30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* الرسالة */
+  .flash-message {
+    position: absolute;
+    top: 70px; /* 👈 تبعد عن التوب بار */
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 80%;
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    background: rgba(255, 0, 0, 0.85); /* افتراضي أحمر */
+    color: #fff;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+    animation: slideDown 0.6s ease, fadeOut 1s ease 3s forwards;
+    z-index: 1000;
+  }
+
+  .flash-message.success {
+    background: rgba(0, 200, 0, 0.85);
+    box-shadow: 0 0 15px rgba(0, 200, 0, 0.6);
+  }
+
+  @keyframes slideDown {
+    from { transform: translate(-50%, -100px); opacity: 0; }
+    to { transform: translate(-50%, 0); opacity: 1; }
+  }
+
+  @keyframes fadeOut {
+    from { opacity: 1; transform: translate(-50%, 0); }
+    to { opacity: 0; transform: translate(-50%, -40px); }
   }
 </style>
 {% endblock %}
 
 {% block content %}
-<form action="/booking" method="POST">
-  <!-- الصورة -->
-  <img src="{{ url_for('static', filename='forms_background.png') }}" alt="A&N Driving Academy">
+  {% if message %}
+    <p class="flash-message {% if success %}success{% endif %}">{{ message }}</p>
+  {% endif %}
 
-  <h2>احجز معاد حصتك</h2>
+  <form action="/booking" method="POST">
+    <!-- الصورة -->
+    <img src="{{ url_for('static', filename='forms_background.png') }}" alt="A&N Driving Academy">
 
-  <div>
-    <label><h3>ادخل الكود الخاص بك</h3></label>
-    <input type="password" name="client_id" required placeholder="أدخل ID الخاص بك">
-  </div>
+    <h2>احجز معاد حصتك</h2>
 
-  <div>
-    <label><h3>(لو ميكس) حصة مانيوال</h3></label>
-    <input type="radio" name="course" value="manual">
+    <div>
+      <label><h3>ادخل الكود الخاص بك</h3></label>
+      <input type="password" name="client_id" required placeholder="أدخل ID الخاص بك">
+    </div>
 
-    <label><h3>(لو ميكس) حصة اوتوماتيك</h3></label>
-    <input type="radio" name="course" value="automatic">
-  </div>
+    <div>
+      <label><h3>(لو ميكس) حصة مانيوال</h3></label>
+      <input type="radio" name="course" value="manual">
 
-  <br>
-  <input type="submit" value="احجز">
-</form>
+      <label><h3>(لو ميكس) حصة اوتوماتيك</h3></label>
+      <input type="radio" name="course" value="automatic">
+    </div>
 
-{% if message %}
-  <p style="color: red; text-align:center; font-weight:bold;">{{ message }}</p>
-{% endif %}
-
+    <br>
+    <input type="submit" value="احجز">
+  </form>
 {% endblock %}

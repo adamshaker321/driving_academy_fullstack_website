@@ -13,6 +13,7 @@
       align-items: center;
       height: 100vh;
       margin: 0;
+      position: relative;
     }
 
     form {
@@ -71,38 +72,66 @@
     }
 
     input[type="submit"]:hover {
-      background: #00e6e6;
+      background: #00b3b3;
       transform: scale(1.03);
       box-shadow: 0 0 12px #00e6e6;
     }
 
     @keyframes slideFade {
-      from {
-        opacity: 0;
-        transform: translateY(-30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* الرسالة */
+    .flash-message {
+      position: absolute;
+      top: 70px; /* 👈 تحت التوب بار */
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 80%;
+      text-align: center;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 12px 20px;
+      border-radius: 10px;
+      background: rgba(255, 0, 0, 0.85);
+      color: #fff;
+      box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+      animation: slideDown 0.6s ease, fadeOut 1s ease 3s forwards;
+      z-index: 1000;
+    }
+
+    .flash-message.success {
+      background: rgba(0, 200, 0, 0.85);
+      box-shadow: 0 0 15px rgba(0, 200, 0, 0.6);
+    }
+
+    @keyframes slideDown {
+      from { transform: translate(-50%, -100px); opacity: 0; }
+      to { transform: translate(-50%, 0); opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; transform: translate(-50%, 0); }
+      to { opacity: 0; transform: translate(-50%, -40px); }
     }
   </style>
-  {% endblock %}
+{% endblock %}
+
 {% block content %}
+  {% if message %}
+    <p class="flash-message {% if success %}success{% endif %}">{{ message }}</p>
+  {% endif %}
+
   <form action="/removing" method="POST">
     <h2>احذف عميل</h2>
 
     <div>
-      <label><h3>رقم العميل (ID)</h3></label>
+      <label><h3>ادخل كود ال admin</h3></label>
       <input type="password" name="client_id" required placeholder="أدخل رقم العميل">
-{% if message %}
-  <p style="color: red; text-align:center; font-weight:bold;">{{ message }}</p>
-{% endif %}
-
     </div>
 
     <br>
     <input type="submit" value="🗑️ حذف العميل">
   </form>
-
-{%endblock%}
+{% endblock %}

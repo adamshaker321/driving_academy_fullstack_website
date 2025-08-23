@@ -8,41 +8,11 @@ from db_config import get_connection
 app = Flask(__name__)
 
 
-def reset_weeks():
-    conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
 
-    today = datetime.date.today()
 
-    # هات آخر جدولين
-    cursor.execute("SELECT * FROM weeks ORDER BY end_date DESC LIMIT 2")
-    last_two = cursor.fetchall()
 
-    if not last_two:
-        return
-    
-    last_week = last_two[0]  # آخر جدول
-    second_last_week = last_two[1] if len(last_two) > 1 else None
 
-    if today > last_week['end_date']:
-        # نبدأ جدول جديد بعد آخر جدول
-        new_start = last_week['end_date'] + datetime.timedelta(days=2)  # السبت اللي بعده
-        new_end = new_start + datetime.timedelta(days=5)
 
-        cursor.execute("""
-            INSERT INTO weeks (start_date, end_date)
-            VALUES (%s, %s)
-        """, (new_start, new_end))
-        conn.commit()
-
-        # امسح حجوزات الجدول الأقدم (اللي خلص)
-        if second_last_week:
-            cursor.execute("DELETE FROM client_manual_sessions WHERE table_number = %s", (second_last_week['table_number'],))
-            cursor.execute("DELETE FROM client_automatic_sessions WHERE table_number = %s", (second_last_week['table_number'],))
-            conn.commit()
-
-    cursor.close()
-    conn.close()
 
 
 @app.route("/home")
@@ -89,7 +59,7 @@ def register():
             conn.commit()
             cursor.close()
             conn.close()
-            return redirect('/dashboard')
+            return redirect('/home')
 
     return render_template("register.html")
 @app.route("/removing", methods=['GET', 'POST'])
@@ -113,7 +83,7 @@ def removing():
             conn.commit()
             cursor.close()
             conn.close()
-            return redirect("/dashboard")
+            return redirect("/home")
         else:
             # لو العميل مش موجود
             message='العميل لم يكن مسجل بالفعل !'
@@ -136,17 +106,27 @@ def booking():
         row = cursor.fetchone()
         
         if row:
-            cursor.close()
-            conn.close()
             
             if row[1] == 'manual':
-                return redirect("/manual_booking")
-            elif row[1] == 'automatic':
-                return redirect("/automatic_booking")
-            elif row[1] =='mix':
-                if clients_course=='manual':
+                cursor.execute("select count(*) from manual_sessions_per_client where id=%s",(clients_id,))
+                total_sessions= cursor.fetchone()[0]
+                if total_sessions <5:
                     return redirect("/manual_booking")
-                elif clients_course=='automatic':
+            
+            elif row[1] == 'automatic':
+                cursor.execute("select count(*) from automatic_sessions_per_client where id=%s",(clients_id,))
+                total_sessions= cursor.fetchone()[0]
+                if total_sessions <5:
+                    return redirect("/automatic_booking")
+                
+            elif row[1] =='mix':
+                cursor.execute("select count(*) from manual_sessions_per_client where id=%s",(clients_id,))
+                total_manual_sessions= cursor.fetchone()[0]
+                cursor.execute("select count(*) from automatic_sessions_per_client where id=%s",(clients_id,))
+                total_automatic_sessions= cursor.fetchone()[0]
+                if total_manual_sessions <3 and total_automatic_sessions ==0:
+                    return redirect("/manual_booking")
+                elif total_manual_sessions>=3 and total_automatic_sessions <3:
                     return redirect("/automatic_booking")
         else:
 
@@ -221,10 +201,11 @@ def manual_booking():
                             INSERT INTO client_manual_sessions (id, client_name, phone, session_day, book_date)
                             VALUES (%s, %s, %s, %s, %s)
                         """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))
+                        cursor.execute("insert into manual_sessions_per_client(id,session_day) values(%s,%s)",(client_id,session_date))
                         conn.commit()
                         booked_confirmed_message = "✅ تم الحجز بنجاح."
                     else:
-                        more_than_two_sessions = "⚠️ لقد قمت بحجز أكثر من معادين في هذا الأسبوع. "
+                        more_than_two_sessions = "⚠️ وصلت الحد الاقصى هذا الاسبوع. "
                         
                 else:
                     message = "⚠ ادخل كود صحيح"
@@ -250,6 +231,91 @@ def manual_booking():
         message=message
     )
 
+
+
+
+
+@app.route("/manual_booking_2", methods=["GET", "POST"])
+def manual_booking_2():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    message = None  
+    already_booked_message = None
+    booked_confirmed_message = None
+    more_than_two_sessions = None
+
+    if request.method == 'POST':
+        client_name = request.form['name']                
+        client_id = request.form['password']              
+        session_date = request.form['session_day_hour']   
+        phone_number = request.form['phone']              
+
+        # السعة القصوى لكل slot
+        MAX_CAPACITY = 3  
+
+        # عدد الحجوزات الحالية في نفس slot
+        cursor.execute("""
+            SELECT COUNT(*) FROM client_manual_sessions_2
+            WHERE session_day = %s
+        """, (session_date,))
+        current_bookings = cursor.fetchone()[0]
+
+        if current_bookings >= MAX_CAPACITY:
+            message = "⚠ المعاد ده اتحجز بالكامل."
+        else:
+            # التأكد إن العميل مايحجزش نفس slot مرتين
+            cursor.execute("""
+                SELECT COUNT(*) FROM client_manual_sessions_2
+                WHERE id = %s AND session_day = %s
+            """, (client_id, session_date))
+            already_booked = cursor.fetchone()[0] > 0
+
+            if already_booked:
+                already_booked_message = "⚠ انت حجزت المعاد ده قبل كده."
+            else:
+                # التأكد إن العميل موجود
+                cursor.execute("SELECT id FROM clients WHERE id = %s", (client_id,))
+                client_exists = cursor.fetchone()
+
+                if client_exists:
+                    cursor.execute("SELECT count(*) FROM client_manual_sessions_2 where id = %s", (client_id,))
+                    total_sessions_per_week= cursor.fetchone()[0]
+                    if total_sessions_per_week < 2:
+                        cursor.execute("""
+                            INSERT INTO client_manual_sessions_2 (id, client_name, phone, session_day, book_date)
+                            VALUES (%s, %s, %s, %s, %s)
+                        """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))
+                        cursor.execute("insert into manual_sessions_per_client(id,session_day) values(%s,%s)",(client_id,session_date))
+
+                        conn.commit()
+                        booked_confirmed_message = "✅ تم الحجز بنجاح."
+                    else:
+                        more_than_two_sessions = "⚠️ وصلت الحد الاقصى هذا الاسبوع. "
+                        
+                else:
+                    message = "⚠ ادخل كود صحيح"
+
+    # جلب أسماء العملاء لكل slot
+    cursor.execute("SELECT session_day, client_name FROM client_manual_sessions_2")
+    rows = cursor.fetchall()
+    booked_slots_names = {}
+    for session, name in rows:
+        if session not in booked_slots_names:
+            booked_slots_names[session] = []
+        booked_slots_names[session].append(name)
+
+    cursor.close()
+    conn.close()
+
+    return render_template(
+        "manual_booking_2.html",
+        booked_slots_names=booked_slots_names,
+        already_booked_message=already_booked_message if 'already_booked_message' in locals() else None,
+        booked_confirmed_message=booked_confirmed_message ,
+        more_than_two_sessions=more_than_two_sessions ,    
+        message=message
+    )
 
 
 
@@ -308,7 +374,7 @@ def automatic_booking():
                         conn.commit()
                         booked_confirmed_message = "✅ تم الحجز بنجاح."
                     else:
-                        more_than_two_sessions = "⚠️ لقد قمت بحجز أكثر من معادين في هذا الأسبوع. "
+                        more_than_two_sessions = "⚠️ وصلت الحد الاقصى هذا الاسبوع. "
                 else:
                     message = "⚠ ادخل كود صحيح"
 
@@ -358,6 +424,7 @@ def cancel_booking():
             f"DELETE FROM {table_name} WHERE id = %s AND session_day = %s",
             (cancel_id, session_day_hour)
         )
+        cursor.execute(f"DELETE FROM {session_type}_sessions_per_client WHERE id = %s AND session_day = %s", (cancel_id, session_day_hour))
         conn.commit()
         cursor.close()
         conn.close()
@@ -368,6 +435,43 @@ def cancel_booking():
         cursor.close()
         conn.close()
         return redirect(f"/{session_type}_booking")
+@app.route("/cancel_booking_2", methods=["POST"])
+def cancel_booking_2():
+    cancel_id = request.form.get("cancel_id")
+    session_day_hour = request.form.get("session_day_hour")
+    session_type = request.form.get("session_type", "manual")  # نوع الحجز
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    if session_type == "manual":
+        table_name = "client_manual_sessions_2"
+    else:
+        table_name = "client_automatic_sessions_2"
+
+    cursor.execute(
+        f"SELECT * FROM {table_name} WHERE id = %s AND session_day = %s",
+        (cancel_id, session_day_hour)
+    )
+    booking = cursor.fetchone()
+
+    if booking:
+        cursor.execute(
+            f"DELETE FROM {table_name} WHERE id = %s AND session_day = %s",
+            (cancel_id, session_day_hour)
+        )
+        cursor.execute(f"DELETE FROM {session_type}_sessions_per_client WHERE id = %s AND session_day = %s", (cancel_id, session_day_hour))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        # هنا نعمل redirect عشان نستفيد من نفس اللوجيك اللي بيجهز البيانات
+        return redirect(f"/{session_type}_booking_2")
+    else:
+        cursor.close()
+        conn.close()
+        return redirect(f"/{session_type}_booking_2")
 
 @app.route("/clients_data")
 def clients_data():
@@ -417,7 +521,7 @@ def add_review():
             cursor.close()
             conn.close()
 
-            return redirect(url_for("dashboard"))
+            return redirect(url_for("manager_page"))
 
     return render_template("add_review.html")
 @app.route("/reviews")
@@ -452,7 +556,7 @@ def remove_review():
             if os.path.exists(file_path):
                 os.remove(file_path)
             
-            return redirect(url_for("dashboard"))
+            return redirect(url_for("manager_page"))
         else:
             cursor.close()
             conn.close()

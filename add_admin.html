@@ -1,10 +1,8 @@
-
 {% extends "base.html" %}
 
 {% block title %}اضافة admin{% endblock %}
 
 {% block styles %}
-
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -15,6 +13,7 @@
       align-items: center;
       height: 100vh;
       margin: 0;
+      position: relative;
     }
 
     form {
@@ -81,18 +80,46 @@
     }
 
     @keyframes slideFade {
-      from {
-        opacity: 0;
-        transform: translateY(-30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* الرسالة */
+ .flash-message {
+      position: absolute;
+      top: 70px;   /* 👈 بدلناها من 20px لـ 70px */
+      left: 50%;
+      transform: translateX(-50%);
+      width: auto;
+      max-width: 80%;
+      text-align: center;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 12px 20px;
+      border-radius: 10px;
+      background: rgba(255, 0, 0, 0.8);
+      color: #fff;
+      box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+      animation: slideDown 0.6s ease, fadeOut 1s ease 3s forwards;
+      z-index: 1000;
+    }
+    @keyframes slideDown {
+      from { transform: translate(-50%, -100px); opacity: 0; }
+      to { transform: translate(-50%, 0); opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; transform: translate(-50%, 0); }
+      to { opacity: 0; transform: translate(-50%, -40px); }
     }
   </style>
-  {%endblock%}
+{% endblock %}
+
 {% block content %}
+  {% if message %}
+    <p class="flash-message">{{ message }}</p>
+  {% endif %}
+
   <form action="/add_admin" method="POST">
     <h2>اضافة admin</h2>
 
@@ -104,14 +131,9 @@
     <div>
       <label><h3>ادخل كود </h3></label>
       <input type="password" name="adm_id" required placeholder="كود">
-{% if message %}
-  <p style="color: red; text-align:center; font-weight:bold;">{{ message }}</p>
-{% endif %}
-
     </div>
-<br>
+
+    <br>
     <input type="submit" value="اضافة">
-
   </form>
-
-{%endblock%}
+{% endblock %}
