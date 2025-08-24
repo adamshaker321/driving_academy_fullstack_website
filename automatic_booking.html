@@ -33,7 +33,7 @@
 {% endblock %}
 
 {% block content %}
-<h1>(الاسبوع الحالي)جدول الاوتوماتيك</h1>
+<h1>جدول الاوتوماتيك</h1>
 {% if message %}
   <div class="alert-message">{{ message }}</div>
 {% elif already_booked_message %}
@@ -80,7 +80,7 @@
   <div class="table-wrapper">
         <div style="display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 10px;">
       <h1>الحجز من {{ start_date }} لحد {{ end_date }}</h1>
-      <a href="{{ url_for('automatic_booking_2') }}" class="next-week-btn">الأسبوع القادم</a>
+      <a href="{{ url_for('automatic_booking_2') }}" class="next-week-btn">الأسبوع التالي</a>
     </div>
 
     <table class="table">

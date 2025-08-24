@@ -174,8 +174,6 @@ def removing():
 
         if existing_client:
             # حذف العميل
-            cursor.execute("DELETE FROM client_manual_sessions WHERE id = %s", (user_id,))
-            cursor.execute("DELETE FROM client_automatic_sessions WHERE id = %s", (user_id,))
             cursor.execute("DELETE FROM clients WHERE id = %s", (user_id,))
             conn.commit()
             cursor.close()
@@ -302,6 +300,7 @@ def manual_booking():
                             INSERT INTO client_manual_sessions (id, client_name, phone, session_day, book_date)
                             VALUES (%s, %s, %s, %s, %s)
                         """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))
+                        conn.commit()
                         cursor.execute("""
                             INSERT INTO manual_sessions_per_client (id, client_name, phone, session_day, book_date)
                             VALUES (%s, %s, %s, %s, %s)         
@@ -393,6 +392,7 @@ def manual_booking_2():
                             INSERT INTO client_manual_sessions_2 (id, client_name, phone, session_day, book_date)
                             VALUES (%s, %s, %s, %s, %s)
                         """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))
+                        conn.commit()
                         cursor.execute("""
                             INSERT INTO manual_sessions_per_client (id, client_name, phone, session_day, book_date)
                             VALUES (%s, %s, %s, %s, %s)
@@ -486,6 +486,7 @@ def automatic_booking():
                             INSERT INTO client_automatic_sessions (id, client_name, phone, session_day, book_date)
                             VALUES (%s, %s, %s, %s, %s)
                         """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))
+                        conn.commit()
                         cursor.execute("""
                             INSERT INTO automatic_sessions_per_client (id, client_name, phone, session_day, book_date)
                             VALUES (%s, %s, %s, %s, %s)         
@@ -580,6 +581,7 @@ def automatic_booking_2():
                             INSERT INTO client_automatic_sessions_2 (id, client_name, phone, session_day, book_date)
                             VALUES (%s, %s, %s, %s, %s)
                         """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))
+                        conn.commit()
                         cursor.execute("""
                             INSERT INTO automatic_sessions_per_client (id, client_name, phone, session_day, book_date)
                             VALUES (%s, %s, %s, %s, %s)         
@@ -641,6 +643,7 @@ def cancel_booking():
             f"DELETE FROM {table_name} WHERE id = %s AND session_day = %s",
             (cancel_id, session_day_hour)
         )
+        conn.commit()
         cursor.execute(f"DELETE FROM {session_type}_sessions_per_client WHERE id = %s AND session_day = %s", (cancel_id, session_day_hour))
         conn.commit()
         cursor.close()
@@ -677,6 +680,7 @@ def cancel_booking_2():
             f"DELETE FROM {table_name} WHERE id = %s AND session_day = %s",
             (cancel_id, session_day_hour)
         )
+        conn.commit()
         cursor.execute(f"DELETE FROM {session_type}_sessions_per_client WHERE id = %s AND session_day = %s", (cancel_id, session_day_hour))
 
         conn.commit()
