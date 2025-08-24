@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 def get_current_period_manual():
     # اليوم اللي عايز تبدأ منه
-    first_saturday = datetime.date(2025, 8, 30)  # مثال البداية
+    first_saturday = datetime.date(2025, 8, 23)  # مثال البداية
 
     today = datetime.date.today()
     diff_days = (today - first_saturday).days
@@ -34,7 +34,7 @@ def get_current_period_manual():
 
     return start, end
 def get_current_period_manual_2():
-    first_saturday = datetime.date(2025, 9, 6)  # التاريخ اللي انت عايزه
+    first_saturday = datetime.date(2025, 8, 30)  # التاريخ اللي انت عايزه
 
     today = datetime.date.today()
 
@@ -60,7 +60,7 @@ def get_current_period_manual_2():
     return start, end
 def get_current_period_auto():
     # اليوم اللي عايز تبدأ منه
-    first_saturday = datetime.date(2025, 8, 30)  # مثال البداية
+    first_saturday = datetime.date(2025, 8, 23)  # مثال البداية
 
     today = datetime.date.today()
     diff_days = (today - first_saturday).days
@@ -83,7 +83,7 @@ def get_current_period_auto():
 
     return start, end
 def get_current_period_auto_2():
-    first_saturday = datetime.date(2025, 9, 6)  # التاريخ اللي انت عايزه
+    first_saturday = datetime.date(2025, 8, 30)  # التاريخ اللي انت عايزه
 
     today = datetime.date.today()
 
