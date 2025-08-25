@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}حجز اوتوماتيك{% endblock %}
+{% block title %}حجز اوتوماتيك (الأسبوع القادم){% endblock %}
 
 {% block styles %}
 <style>
@@ -24,16 +24,15 @@
     text-decoration: none;
     font-size: 16px;
     transition: 0.3s;
-}
-.next-week-btn:hover {
+  }
+  .next-week-btn:hover {
     background: #0056b3;
-}
-
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<h1>(الاسبوع القادم)جدول الاوتوماتيك</h1>
+<h1>(الأسبوع القادم) جدول الاوتوماتيك</h1>
 {% if message %}
   <div class="alert-message">{{ message }}</div>
 {% elif already_booked_message %}
@@ -62,7 +61,7 @@
   </form>
 </div>
 
-<!-- فورم الإلغاء -->       
+<!-- فورم الإلغاء -->
 <div class="popup-form" id="cancelForm">
   <button class="close-btn" onclick="closeCancelForm()">X</button>
   <h3>إلغاء الحجز</h3>
@@ -76,46 +75,42 @@
 </div>
 
 <div class="tables-container">
-  <!-- الجدول الأول -->
   <div class="table-wrapper">
-        <div style="display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 10px;">
+    <div style="display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 10px;">
       <h1>الحجز من {{ start_date }} لحد {{ end_date }}</h1>
       <a href="{{ url_for('automatic_booking') }}" class="next-week-btn">السابق</a>
     </div>
 
     <table class="table">
       <tr>
-          <th>الساعة</th>
-          <th>السبت</th>
-          <th>الأحد</th>
-          <th>الاثنين</th>
-          <th>الثلاثاء</th>
-          <th>الأربعاء</th>
-          <th>الخميس</th>
+        <th>الساعة</th>
+        {% for day, date in days_with_dates %}
+          <th>{{ day }} <br> {{ date }}</th>
+        {% endfor %}
       </tr>
       {% for hour in ["10 ص","11 ص","12 م","1 م","2 م","3 م","4 م","5 م","6 م","7 م"] %}
       <tr>
-          <td>الساعة {{ hour }}</td>
-          {% for day in ["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"] %}
-              {% set day_hour_label = "جدول1 - يوم " ~ day ~ " الساعة " ~ hour %}
-              <td>
-                  {% set names = booked_slots_names.get(day_hour_label, []) %}
-                  {% for i in range(2) %}
-                      {% if i < names|length %}
-                          <span class="cancel-btn" onclick="openCancelForm('{{ day_hour_label }}')">{{ names[i] }}(الغاء الحجز)</span>
-                      {% else %}
-                          <button class="book-btn" onclick="openForm('{{ day_hour_label }}')">احجز</button>
-                      {% endif %}
-                      <br>
-                  {% endfor %}
-              </td>
-          {% endfor %}
+        <td>الساعة {{ hour }}</td>
+        {% for day, date in days_with_dates %}
+          {% set day_hour_label = "جدول1 - يوم " ~ day ~ " " ~ date ~ " الساعة " ~ hour %}
+          <td>
+            {% set names = booked_slots_names.get(day_hour_label, []) %}
+            {% for i in range(2) %}
+              {% if i < names|length %}
+                <span class="cancel-btn" onclick="openCancelForm('{{ day_hour_label }}')">{{ names[i] }} (الغاء الحجز)</span>
+              {% else %}
+                <button class="book-btn" onclick="openForm('{{ day_hour_label }}')">احجز</button>
+              {% endif %}
+              <br>
+            {% endfor %}
+          </td>
+        {% endfor %}
       </tr>
       {% endfor %}
     </table>
   </div>
+</div>
 
-  
 <script>
 function openForm(dayHour) {
   document.getElementById("overlay").style.display = "block";

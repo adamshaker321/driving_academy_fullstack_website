@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}(الاسبوع الحالي)حجز مانيوال{% endblock %}
+{% block title %}(الاسبوع الحالي) حجز مانيوال{% endblock %}
 
 {% block styles %}
 <style>
@@ -75,7 +75,6 @@
 </div>
 
 <div class="tables-container">
-  <!-- الجدول الأول -->
   <div class="table-wrapper">
     <div style="display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 10px;">
       <h1>الحجز من {{ start_date }} لحد {{ end_date }}</h1>
@@ -84,19 +83,16 @@
     <table class="table">
       <tr>
           <th>الساعة</th>
-          <th>السبت</th>
-          <th>الأحد</th>
-          <th>الاثنين</th>
-          <th>الثلاثاء</th>
-          <th>الأربعاء</th>
-          <th>الخميس</th>
+          {% for day in days_list %}
+            <th>{{ day.name }} <br> {{ day.date }}</th>
+          {% endfor %}
       </tr>
       {% for hour in ["10 ص","11 ص","12 م","1 م","2 م","3 م","4 م","5 م","6 م","7 م"] %}
       <tr>
           <td>الساعة {{ hour }}</td>
-          {% for day in ["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"] %}
-              {% set day_hour_label = "  يوم " ~ day ~ " الساعة " ~ hour %}
-              {% if (hour in ["10 ص", "11 ص", "12 م", "1 م"]) and (day in ["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"]) %}
+          {% for day in days_list %}
+              {% set day_hour_label = "يوم " ~ day.name ~ " " ~ day.date ~ " الساعة " ~ hour %}
+              {% if (hour in ["10 ص", "11 ص", "12 م", "1 م"]) and (day.name in ["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"]) %}
                   {% set num_cells = 2 %}
               {% else %}
                   {% set num_cells = 3 %}
@@ -105,7 +101,7 @@
                   {% set names = booked_slots_names.get(day_hour_label, []) %}
                   {% for i in range(num_cells) %}
                       {% if i < names|length %}
-                          <span class="cancel-btn" onclick="openCancelForm('{{ day_hour_label }}')">{{ names[i] }}(الغاء الحجز)</span>
+                          <span class="cancel-btn" onclick="openCancelForm('{{ day_hour_label }}')">{{ names[i] }} (الغاء الحجز)</span>
                       {% else %}
                           <button class="book-btn" onclick="openForm('{{ day_hour_label }}')">احجز</button>
                       {% endif %}
@@ -139,5 +135,4 @@ function closeCancelForm() {
   document.getElementById("cancelForm").style.display = "none";
 }
 </script>
-
 {% endblock %}
