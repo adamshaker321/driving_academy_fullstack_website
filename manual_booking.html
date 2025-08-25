@@ -103,14 +103,18 @@
         <!-- لو اليوم فات نقفله -->
         <span style="color:gray; font-weight:bold;">//</span>
     {% else %}
-        {% for i in range(num_cells) %}
-            {% if i < names|length %}
-                <span class="cancel-btn" onclick="openCancelForm('{{ day_hour_label }}')">{{ names[i] }} (الغاء الحجز)</span>
-            {% else %}
-                <button class="book-btn" onclick="openForm('{{ day_hour_label }}')">احجز</button>
-            {% endif %}
-            <br>
-        {% endfor %}
+{% for i in range(num_cells) %}
+    {% if i < names|length %}
+        {% if not day.disable_cancel %}
+            <span class="cancel-btn" onclick="openCancelForm('{{ day_hour_label }}')">{{ names[i] }} (الغاء الحجز)</span>
+        {% else %}
+            <span style="font-weight:bold;">{{ names[i] }}</span>
+        {% endif %}
+    {% else %}
+        <button class="book-btn" onclick="openForm('{{ day_hour_label }}')">احجز</button>
+    {% endif %}
+    <br>
+{% endfor %}
     {% endif %}
 </td>
           {% endfor %}

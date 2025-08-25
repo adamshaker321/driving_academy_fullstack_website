@@ -254,22 +254,23 @@ def manual_booking():
     start_date, end_date = get_current_period_manual()
     today = datetime.date.today()
 
-    # لو اليوم بعد نهاية الفترة → نمسح الحجوزات
     if today > end_date:
         cursor.execute("DELETE FROM client_manual_sessions")
         conn.commit()
 
-    # نكوّن الأيام بالتواريخ
     days_list = []
     arabic_days = ["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"]
     for i, day_name in enumerate(arabic_days):
         current_date = start_date + timedelta(days=i)
         is_past = current_date < today
+        # منع الإلغاء لو باقي يوم أو أقل على الحصة
+        disable_cancel = 0 <= (current_date - today).days <= 1
         days_list.append({
             "name": day_name,
             "date": current_date.strftime("%d/%m"),
             "full_date": current_date,
-            "is_past": is_past
+            "is_past": is_past,
+            "disable_cancel": disable_cancel
         })
 
     message = None  
@@ -352,7 +353,6 @@ def manual_booking():
 
 
 
-
 @app.route("/manual_booking_2", methods=["GET", "POST"])
 def manual_booking_2():
     conn = get_connection()
@@ -361,7 +361,6 @@ def manual_booking_2():
     start_date, end_date = get_current_period_manual_2()
     today = datetime.date.today()
 
-    # لو الفترة خلصت امسح الحجوزات
     if today > end_date:
         cursor.execute("DELETE FROM client_manual_sessions_2")
         conn.commit()
@@ -428,18 +427,22 @@ def manual_booking_2():
             booked_slots_names[session] = []
         booked_slots_names[session].append(name)
 
+    # حساب تواريخ الأيام مع فلاغ لمنع الإلغاء قبل يوم من الحصة
+    week_days = []
+    arabic_days = ["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"]
+    for i, day_name in enumerate(arabic_days):
+        current_date = start_date + timedelta(days=i)
+        is_past = current_date < today
+        disable_cancel = 0 <= (current_date - today).days <= 1  # منع الإلغاء قبل يوم
+        week_days.append({
+            "name": day_name,
+            "date": current_date,
+            "is_past": is_past,
+            "disable_cancel": disable_cancel
+        })
+
     cursor.close()
     conn.close()
-
-    # حساب تواريخ الأيام مع فلاغ لو اليوم فات
-    week_days = [
-        {"name": "السبت", "date": start_date, "is_past": start_date < today},
-        {"name": "الأحد", "date": start_date + timedelta(days=1), "is_past": (start_date + timedelta(days=1)) < today},
-        {"name": "الاثنين", "date": start_date + timedelta(days=2), "is_past": (start_date + timedelta(days=2)) < today},
-        {"name": "الثلاثاء", "date": start_date + timedelta(days=3), "is_past": (start_date + timedelta(days=3)) < today},
-        {"name": "الأربعاء", "date": start_date + timedelta(days=4), "is_past": (start_date + timedelta(days=4)) < today},
-        {"name": "الخميس", "date": start_date + timedelta(days=5), "is_past": (start_date + timedelta(days=5)) < today},
-    ]
 
     return render_template(
         "manual_booking_2.html",
@@ -453,7 +456,6 @@ def manual_booking_2():
         week_days=week_days,
         today=today
     )
-
 
 
 @app.route("/automatic_booking", methods=["GET", "POST"])
@@ -473,13 +475,14 @@ def automatic_booking():
     booked_confirmed_message = None
     more_than_two_sessions = None
 
-    # تجهيز الأيام مع التواريخ
+    # تجهيز الأيام مع التواريخ + فلاغ منع الإلغاء
     days_of_week = ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس"]
     days_with_dates = []
     for i, day in enumerate(days_of_week):
         day_date = start_date + timedelta(days=i)
-        # نخزن اليوم كـ object + string علشان نقدر نقارنه في html
-        days_with_dates.append((day, day_date, day_date.strftime("%Y-%m-%d")))
+        # لو باقي يوم أو أقل → ممنوع الإلغاء
+        disable_cancel = (day_date - today).days <= 1
+        days_with_dates.append({"name": day, "date": day_date, "disable_cancel": disable_cancel})
 
     if request.method == 'POST':
         client_name = request.form['name']
@@ -532,6 +535,7 @@ def automatic_booking():
                 else:
                     message = "⚠ ادخل كود صحيح"
 
+    # جمع أسماء المحجوزين لكل slot
     cursor.execute("SELECT session_day, client_name FROM client_automatic_sessions")
     rows = cursor.fetchall()
     booked_slots_names = {}
@@ -553,7 +557,7 @@ def automatic_booking():
         start_date=start_date,
         end_date=end_date,
         days_with_dates=days_with_dates,
-        today=today   # نبعته للـ HTML علشان نستخدمه في القفل
+        today=today
     )
 
 @app.route("/automatic_booking_2", methods=['GET', 'POST'])
@@ -572,12 +576,13 @@ def automatic_booking_2():
     booked_confirmed_message = None
     more_than_two_sessions = None
 
-    # الأيام + التواريخ
+    # الأيام + التواريخ + فلاغ منع الإلغاء لو باقي يوم أو أقل
     days_of_week = ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس"]
     days_with_dates = []
     for i, day in enumerate(days_of_week):
         day_date = start_date + timedelta(days=i)
-        days_with_dates.append((day, day_date, day_date.strftime("%Y-%m-%d")))
+        disable_cancel = (day_date - today).days <= 1  # لو باقي يوم أو أقل → ممنوع الإلغاء
+        days_with_dates.append({"name": day, "date": day_date, "disable_cancel": disable_cancel, "date_str": day_date.strftime("%Y-%m-%d")})
 
     if request.method == 'POST':
         client_name = request.form['name']
@@ -651,9 +656,8 @@ def automatic_booking_2():
         start_date=start_date,
         end_date=end_date,
         days_with_dates=days_with_dates,
-        today=today   # مهمة علشان نعمل الشرط بتاع //
+        today=today
     )
-
 
 @app.route("/cancel_booking", methods=["POST"])
 def cancel_booking():
