@@ -478,7 +478,8 @@ def automatic_booking():
     days_with_dates = []
     for i, day in enumerate(days_of_week):
         day_date = start_date + timedelta(days=i)
-        days_with_dates.append((day, day_date.strftime("%Y-%m-%d")))  # اليوم + التاريخ
+        # نخزن اليوم كـ object + string علشان نقدر نقارنه في html
+        days_with_dates.append((day, day_date, day_date.strftime("%Y-%m-%d")))
 
     if request.method == 'POST':
         client_name = request.form['name']
@@ -551,10 +552,11 @@ def automatic_booking():
         message=message,
         start_date=start_date,
         end_date=end_date,
-        days_with_dates=days_with_dates
+        days_with_dates=days_with_dates,
+        today=today   # نبعته للـ HTML علشان نستخدمه في القفل
     )
 
-@app.route("/automatic_booking_2", methods=['GET','POST'])
+@app.route("/automatic_booking_2", methods=['GET', 'POST'])
 def automatic_booking_2():
     conn = get_connection()
     cursor = conn.cursor()
@@ -570,18 +572,18 @@ def automatic_booking_2():
     booked_confirmed_message = None
     more_than_two_sessions = None
 
-    # تجهيز الأيام + التواريخ
+    # الأيام + التواريخ
     days_of_week = ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس"]
     days_with_dates = []
     for i, day in enumerate(days_of_week):
         day_date = start_date + timedelta(days=i)
-        days_with_dates.append((day, day_date.strftime("%Y-%m-%d")))
+        days_with_dates.append((day, day_date, day_date.strftime("%Y-%m-%d")))
 
     if request.method == 'POST':
-        client_name = request.form['name']                
-        client_id = request.form['password']              
-        session_date = request.form['session_day_hour']   
-        phone_number = request.form['phone']              
+        client_name = request.form['name']
+        client_id = request.form['password']
+        session_date = request.form['session_day_hour']
+        phone_number = request.form['phone']
 
         MAX_CAPACITY = 2  
 
@@ -618,7 +620,7 @@ def automatic_booking_2():
 
                         cursor.execute("""
                             INSERT INTO automatic_sessions_per_client (id, client_name, phone, session_day, book_date)
-                            VALUES (%s, %s, %s, %s, %s)         
+                            VALUES (%s, %s, %s, %s, %s)
                         """, (client_id, client_name, phone_number, session_date, datetime.datetime.now()))     
                         conn.commit()
 
@@ -642,14 +644,16 @@ def automatic_booking_2():
     return render_template(
         "automatic_booking_2.html",
         booked_slots_names=booked_slots_names,
-        already_booked_message=already_booked_message ,
+        already_booked_message=already_booked_message,
         booked_confirmed_message=booked_confirmed_message,
         more_than_two_sessions=more_than_two_sessions,
         message=message,
         start_date=start_date,
         end_date=end_date,
-        days_with_dates=days_with_dates
+        days_with_dates=days_with_dates,
+        today=today   # مهمة علشان نعمل الشرط بتاع //
     )
+
 
 @app.route("/cancel_booking", methods=["POST"])
 def cancel_booking():
