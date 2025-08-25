@@ -264,9 +264,12 @@ def manual_booking():
     arabic_days = ["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"]
     for i, day_name in enumerate(arabic_days):
         current_date = start_date + timedelta(days=i)
+        is_past = current_date < today
         days_list.append({
             "name": day_name,
-            "date": current_date.strftime("%d/%m")  # يعرض التاريخ بالشكل 23/08
+            "date": current_date.strftime("%d/%m"),
+            "full_date": current_date,
+            "is_past": is_past
         })
 
     message = None  
@@ -343,7 +346,8 @@ def manual_booking():
         message=message,
         start_date=start_date,
         end_date=end_date,
-        days_list=days_list
+        days_list=days_list,
+        today=today
     )
 
 
@@ -427,14 +431,14 @@ def manual_booking_2():
     cursor.close()
     conn.close()
 
-    # حساب تواريخ الأيام
+    # حساب تواريخ الأيام مع فلاغ لو اليوم فات
     week_days = [
-        ("السبت", start_date),
-        ("الأحد", start_date + timedelta(days=1)),
-        ("الاثنين", start_date + timedelta(days=2)),
-        ("الثلاثاء", start_date + timedelta(days=3)),
-        ("الأربعاء", start_date + timedelta(days=4)),
-        ("الخميس", start_date + timedelta(days=5)),
+        {"name": "السبت", "date": start_date, "is_past": start_date < today},
+        {"name": "الأحد", "date": start_date + timedelta(days=1), "is_past": (start_date + timedelta(days=1)) < today},
+        {"name": "الاثنين", "date": start_date + timedelta(days=2), "is_past": (start_date + timedelta(days=2)) < today},
+        {"name": "الثلاثاء", "date": start_date + timedelta(days=3), "is_past": (start_date + timedelta(days=3)) < today},
+        {"name": "الأربعاء", "date": start_date + timedelta(days=4), "is_past": (start_date + timedelta(days=4)) < today},
+        {"name": "الخميس", "date": start_date + timedelta(days=5), "is_past": (start_date + timedelta(days=5)) < today},
     ]
 
     return render_template(
@@ -446,9 +450,9 @@ def manual_booking_2():
         message=message,
         start_date=start_date,
         end_date=end_date,
-        week_days=week_days
+        week_days=week_days,
+        today=today
     )
-
 
 
 

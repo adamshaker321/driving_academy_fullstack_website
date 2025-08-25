@@ -83,31 +83,35 @@
     <table class="table">
       <tr>
           <th>الساعة</th>
-          {% for day_name, day_date in week_days %}
-            <th>{{ day_name }} <br> {{ day_date.strftime("%d/%m") }}</th>
+          {% for day in week_days %}
+            <th>{{ day.name }} <br> {{ day.date.strftime("%d/%m") }}</th>
           {% endfor %}
       </tr>
       {% for hour in ["10 ص","11 ص","12 م","1 م","2 م","3 م","4 م","5 م","6 م","7 م"] %}
       <tr>
           <td>الساعة {{ hour }}</td>
-          {% for day_name, day_date in week_days %}
-              {% set day_hour_label = day_name ~ " " ~ day_date.strftime("%d/%m") ~ " الساعة " ~ hour %}
-              {% if (hour in ["10 ص", "11 ص", "12 م", "1 م"]) and (day_name in ["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"]) %}
-                  {% set num_cells = 2 %}
+          {% for day in week_days %}
+              {% set day_hour_label = day.name ~ " " ~ day.date.strftime("%d/%m") ~ " الساعة " ~ hour %}
+              {% if day.is_past %}
+                  <td>//</td>
               {% else %}
-                  {% set num_cells = 3 %}
+                  {% if (hour in ["10 ص", "11 ص", "12 م", "1 م"]) and (day.name in ["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"]) %}
+                      {% set num_cells = 2 %}
+                  {% else %}
+                      {% set num_cells = 3 %}
+                  {% endif %}
+                  <td>
+                      {% set names = booked_slots_names.get(day_hour_label, []) %}
+                      {% for i in range(num_cells) %}
+                          {% if i < names|length %}
+                              <span class="cancel-btn" onclick="openCancelForm('{{ day_hour_label }}')">{{ names[i] }} (الغاء)</span>
+                          {% else %}
+                              <button class="book-btn" onclick="openForm('{{ day_hour_label }}')">احجز</button>
+                          {% endif %}
+                          <br>
+                      {% endfor %}
+                  </td>
               {% endif %}
-              <td>
-                  {% set names = booked_slots_names.get(day_hour_label, []) %}
-                  {% for i in range(num_cells) %}
-                      {% if i < names|length %}
-                          <span class="cancel-btn" onclick="openCancelForm('{{ day_hour_label }}')">{{ names[i] }} (الغاء)</span>
-                      {% else %}
-                          <button class="book-btn" onclick="openForm('{{ day_hour_label }}')">احجز</button>
-                      {% endif %}
-                      <br>
-                  {% endfor %}
-              </td>
           {% endfor %}
       </tr>
       {% endfor %}
@@ -129,7 +133,7 @@ function openCancelForm(dayHour) {
   document.getElementById("overlay").style.display = "block";
   document.getElementById("cancelForm").style.display = "block";
   document.getElementById("cancelSessionDayHour").value = dayHour;
-}
+} 
 function closeCancelForm() {
   document.getElementById("overlay").style.display = "none";
   document.getElementById("cancelForm").style.display = "none";
