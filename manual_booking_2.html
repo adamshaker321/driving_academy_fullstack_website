@@ -26,6 +26,29 @@
     transition: 0.3s;
   }
   .current-week-btn:hover { background: #0056b3; }
+    .table {
+    width: 100%;
+    min-width: 800px; /* ✅ يحافظ على ظهور عمود الساعة */
+    border-collapse: collapse;
+    font-size: 18px;
+  }
+
+  .table th, .table td { 
+    padding: 12px; 
+    text-align: center; 
+    border: 1px solid #ccc; 
+  }
+
+  /* ✅ عمود الساعة أوضح */
+  .table td:first-child, .table th:first-child {
+    font-size: 20px;
+    font-weight: bold;
+    background: #f5f5f5;
+    color: #000;
+    position: sticky; /* يخليها ثابتة لو الجدول اتسحب */
+    right: 0;
+    z-index: 2;
+  }
 </style>
 {% endblock %}
 
@@ -105,7 +128,7 @@
                             {% if not day.disable_cancel %}
                                 <span class="cancel-btn" onclick="openCancelForm('{{ day_hour_label }}')">{{ names[i] }} (الغاء)</span>
                             {% else %}
-                                <span style="font-weight:bold;">{{ names[i] }}</span>
+                                <span style="font-weight:bold; color: green;">{{ names[i] }}</span>
                             {% endif %}
                         {% else %}
                             <button class="book-btn" onclick="openForm('{{ day_hour_label }}')">احجز</button>

@@ -2,6 +2,7 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>اضافة رأي</title>
   <style>
     body {
@@ -13,6 +14,8 @@
       align-items: center;
       height: 100vh;
       margin: 0;
+      padding: 15px; /* عشان العناصر ما تلزقش */
+      box-sizing: border-box;
     }
 
     form {
@@ -20,8 +23,9 @@
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 20px;
-      padding: 40px;
+      padding: 30px;
       width: 400px;
+      max-width: 90%; /* ✅ يمنع الفورم من الخروج برة الشاشة */
       box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
       animation: fadeInUp 1.2s ease;
     }
@@ -29,12 +33,12 @@
     h2 {
       text-align: center;
       margin-bottom: 20px;
-      font-size: 26px;
+      font-size: 24px;
       color: #00e6e6;
     }
 
     label h2 {
-      font-size: 18px;
+      font-size: 16px;
       margin-bottom: 8px;
       color: #e0e0e0;
       text-align: right;
@@ -49,10 +53,10 @@
       border-radius: 10px;
       background-color: rgba(255, 255, 255, 0.1);
       color: #fff;
-      font-size: 16px;
+      font-size: 15px;
       transition: 0.3s;
+      box-sizing: border-box;
     }
-    
 
     input[type="file"]:focus,
     input[type="text"]:focus {
@@ -60,7 +64,6 @@
       background-color: rgba(255, 255, 255, 0.2);
       box-shadow: 0 0 10px #00e6e6;
     }
-    
 
     input[type="submit"] {
       width: 100%;
@@ -69,7 +72,7 @@
       border-radius: 10px;
       background: #00e6e6;
       color: #000;
-      font-size: 18px;
+      font-size: 17px;
       font-weight: bold;
       cursor: pointer;
       transition: 0.3s ease-in-out;
@@ -82,13 +85,24 @@
     }
 
     @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ✅ موبايل */
+    @media (max-width: 480px) {
+      form {
+        padding: 20px;
       }
-      to {
-        opacity: 1;
-        transform: translateY(0);
+      h2 {
+        font-size: 20px;
+      }
+      label h2 {
+        font-size: 14px;
+      }
+      input[type="text"], input[type="file"], input[type="submit"] {
+        font-size: 14px;
+        padding: 10px;
       }
     }
   </style>

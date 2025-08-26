@@ -3,119 +3,152 @@
 {% block title %}حذف عميل{% endblock %}
 
 {% block styles %}
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      position: relative;
-    }
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+    color: #fff;
+    margin: 0;
+  }
 
-    form {
-      background-color: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      padding: 40px;
-      width: 350px;
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
-      animation: slideFade 1.2s ease;
-    }
+  /* ✅ container للفورم في النص تحت التوب بار */
+  .login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 100px); /* يطرح ارتفاع التوب بار */
+    padding-top: 100px; /* يبعد شوية عن التوب بار */
+  }
 
+  form {
+    background-color: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 40px;
+    width: 90%;          /* تعديل عشان يظبط على الموبايل */
+    max-width: 360px;    /* أقصى عرض للفورم */
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+    animation: slideFade 1.2s ease;
+    text-align: center;
+  }
+
+  form img {
+    max-width: 220px;
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 25px;
+    color: #00e6e6;
+  }
+
+  label h3 {
+    margin: 10px 0 5px;
+    font-size: 16px;
+    color: #e0e0e0;
+    text-align: right;
+  }
+
+  input[type="text"],
+  input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 16px;
+    margin-bottom: 20px;
+    transition: 0.3s;
+  }
+
+  input[type="text"]:focus,
+  input[type="password"]:focus {
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 10px #00e6e6;
+  }
+
+  input[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: #00e6e6;
+    color: #000;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+  }
+
+  input[type="submit"]:hover {
+    background: #00b3b3;
+    transform: scale(1.03);
+    box-shadow: 0 0 12px #00e6e6;
+  }
+
+  @keyframes slideFade {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ✅ الرسالة (Flash Message) */
+  .flash-message {
+    position: fixed;
+    top: 70px; /* تحت التوب بار */
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 80%;
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    background: rgba(255, 0, 0, 0.85); /* افتراضي أحمر */
+    color: #fff;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+    animation: slideDown 0.6s ease, fadeOut 1s ease 3s forwards;
+    z-index: 2000;
+  }
+
+  .flash-message.success {
+    background: rgba(0, 200, 0, 0.85);
+    box-shadow: 0 0 15px rgba(0, 200, 0, 0.6);
+  }
+
+  @keyframes slideDown {
+    from { transform: translate(-50%, -100px); opacity: 0; }
+    to { transform: translate(-50%, 0); opacity: 1; }
+  }
+
+  @keyframes fadeOut {
+    from { opacity: 1; transform: translate(-50%, 0); }
+    to { opacity: 0; transform: translate(-50%, -40px); }
+  }
+
+  /* ✅ تصغير الخطوط للموبايل */
+  @media (max-width: 480px) {
     h2 {
-      text-align: center;
-      margin-bottom: 30px;
-      font-size: 28px;
-      color: #00e6e6;
+      font-size: 20px;
     }
-
     label h3 {
-      margin: 10px 0 5px;
-      font-size: 16px;
-      color: #e0e0e0;
+      font-size: 14px;
     }
-
+    input[type="text"],
     input[type="password"] {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      background-color: rgba(255, 255, 255, 0.1);
-      color: #fff;
-      font-size: 16px;
-      margin-bottom: 20px;
-      transition: 0.3s;
+      font-size: 14px;
+      padding: 10px;
     }
-
-    input[type="password"]:focus {
-      outline: none;
-      background-color: rgba(255, 255, 255, 0.2);
-      box-shadow: 0 0 10px #00e6e6;
-    }
-
     input[type="submit"] {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      background: #00e6e6;
-      color: #000;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.3s ease-in-out;
-    }
-
-    input[type="submit"]:hover {
-      background: #00b3b3;
-      transform: scale(1.03);
-      box-shadow: 0 0 12px #00e6e6;
-    }
-
-    @keyframes slideFade {
-      from { opacity: 0; transform: translateY(-30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* الرسالة */
-    .flash-message {
-      position: absolute;
-      top: 70px; /* 👈 تحت التوب بار */
-      left: 50%;
-      transform: translateX(-50%);
-      max-width: 80%;
-      text-align: center;
-      font-weight: bold;
       font-size: 16px;
-      padding: 12px 20px;
-      border-radius: 10px;
-      background: rgba(255, 0, 0, 0.85);
-      color: #fff;
-      box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
-      animation: slideDown 0.6s ease, fadeOut 1s ease 3s forwards;
-      z-index: 1000;
+      padding: 10px;
     }
-
-    .flash-message.success {
-      background: rgba(0, 200, 0, 0.85);
-      box-shadow: 0 0 15px rgba(0, 200, 0, 0.6);
-    }
-
-    @keyframes slideDown {
-      from { transform: translate(-50%, -100px); opacity: 0; }
-      to { transform: translate(-50%, 0); opacity: 1; }
-    }
-
-    @keyframes fadeOut {
-      from { opacity: 1; transform: translate(-50%, 0); }
-      to { opacity: 0; transform: translate(-50%, -40px); }
-    }
-  </style>
+  }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -123,7 +156,10 @@
     <p class="flash-message {% if success %}success{% endif %}">{{ message }}</p>
   {% endif %}
 
+  <div class="login-container">
   <form action="/removing" method="POST">
+      <img src="{{ url_for('static', filename='forms_background.png') }}" alt="شعار الأكاديمية">
+
     <h2>احذف عميل</h2>
 
     <div>
@@ -134,4 +170,5 @@
     <br>
     <input type="submit" value="🗑️ حذف العميل">
   </form>
+  </div>
 {% endblock %}

@@ -2,6 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>A&N Driving Academy</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
@@ -71,121 +72,91 @@
         transform: scale(1.05);
     }
 
-    .menu-btn {
-        position: fixed;
-        top: 70px;
-        right: 15px;
-        z-index: 101;
+    /* زرار المنيو */
+    .hamburger {
+        display: none;
         font-size: 26px;
-        background: #388e3c;
-        color: white;
-        padding: 10px 15px;
-        border-radius: 8px;
         cursor: pointer;
+        background: none;
         border: none;
-        transition: transform 0.3s ease;
-    }
-
-    .sidebar {
-        position: fixed;
-        top: 0;
-        right: -240px;
-        width: 220px;
-        height: 100vh;
-        background-color: rgba(64, 84, 95, 0.95);
-        padding-top: 180px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        z-index: 100;
-        transition: right 0.3s ease;
-    }
-
-    .sidebar.active {
-        right: 0;
-    }
-
-    .sidebar a {
         color: white;
-        text-decoration: none;
-        margin: 15px 0;
-        padding: 12px 20px;
-        border-radius: 25px;
-        background-color: #388e3c;
-        font-weight: bold;
-        font-size: 16px;
-        width: 80%;
+    }
+
+    /* المنيو المنسدلة */
+    .mobile-menu {
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        background: rgba(38, 50, 56, 0.95);
+        padding: 15px;
+        border-radius: 10px;
+        position: absolute;
+        top: 60px;
+        left: 10px;
+        right: 10px;
+        z-index: 200;
+    }
+
+    .mobile-menu a {
+        padding: 10px;
+        border-radius: 8px;
         text-align: center;
-        transition: 0.3s ease;
-        margin-bottom: 50px;
+        text-decoration: none;
+        color: white;
+        background: #2e7d32;
+        font-size: 14px;
     }
 
-    .sidebar a:hover {
-        background-color: #2e7d32;
-        transform: scale(1.05);
+    /* ✅ main content */
+    .main-content {
+        min-height: 70vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 5vw;
+        text-align: center;
+        padding: 130px 20px 20px;
     }
 
-.main-content {
-    padding: 130px 20px 20px;
-    text-align: center;
-    font-size: 32px;
-    min-height: 70vh;
-}
-
-/* الكروت بتاعة السطور */
-.main-content ul {
-    list-style: none;
-    padding: 0;
-    margin: 0 auto;
-    max-width: 700px;
-}
-
-.main-content ul li {
-    background: rgba(255,255,255,0.08);
-    border-radius: 15px;
-    padding: 25px;
-    margin: 20px 0;
-    text-align: center;
-    font-size: 24px;
-    font-weight: bold;
-    color: #00e6e6;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-    opacity: 0;
-    transform: translateY(40px) scale(0.95);
-    animation: fadeSlideIn 1s forwards;
-    transition: transform 0.4s ease, box-shadow 0.4s ease;
-}
-
-/* تأثير hover */
-.main-content ul li:hover {
-    transform: scale(1.05) translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.6);
-}
-
-/* ظهور متتالي */
-.main-content ul li:nth-child(1) {
-    animation-delay: 0.5s;
-}
-.main-content ul li:nth-child(2) {
-    animation-delay: 1s;
-}
-.main-content ul li:nth-child(3) {
-    animation-delay: 1.5s;
-}
-
-/* Animation */
-@keyframes fadeSlideIn {
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
+    .main-content ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
     }
-}
 
-    .sidebar.active ~ .main-content,
-    .sidebar.active ~ .top-bar,
-    .sidebar.active ~ .menu-btn,
-    .sidebar.active ~ .address {
-        transform: translateX(-200px);
+    .main-content ul li {
+        margin: 40px 0;
+        opacity: 0;
+        transform: translateY(40px);
+        animation: fadeSlideIn 1s forwards;
+    }
+
+    .main-content ul li:nth-child(1) { animation-delay: 0.5s; }
+    .main-content ul li:nth-child(2) { animation-delay: 1.5s; }
+
+    .main-content ul li a {
+        display: inline-block;
+        text-decoration: none;
+        font-size: 5vw;
+        font-weight: bold;
+        color: #fff;
+        background: rgba(56, 142, 60, 0.9);
+        padding: 15px 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .main-content ul li a:hover {
+        transform: scale(1.1);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+    }
+
+    @keyframes fadeSlideIn {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .contact-section {
@@ -244,6 +215,12 @@
     }
     .link-with-icon:hover { color: #00b3b3; text-decoration: underline; }
     .link-with-icon i { font-size: 20px; }
+
+    /* ✅ للتابلت والموبايل */
+    @media (max-width: 768px) {
+        .top-links { display: none; }
+        .hamburger { display: block; }
+    }
 </style>
 </head>
 <body>
@@ -253,28 +230,34 @@
         <a href="/home">
             <img src="{{ url_for('static', filename='logo.jpg') }}" alt="شعار الأكاديمية">
         </a>
-        <h1>A&N Driving Academy (Captain Ashraf)</h1>
     </div>
+
+    <!-- لينكات الديسكتوب -->
     <div class="top-links">
-        <a href="#contact">📞 تواصل معنا</a>
-        <a href="/reviews">💬 آراء العملاء</a>
-        <a href="/offers">📢 العروض الحالية للكورسات</a>
-        <a href="/home">🏠 الصفحة الرئيسية</a>
+        <a href="#contact"> تواصل معنا</a>
+        <a href="/reviews"> آراء العملاء</a>
+        <a href="/offers"> العروض الحالية للكورسات</a>
+        <a href="/home"> الصفحة الرئيسية</a>
     </div>
+
+    <!-- زرار المنيو للموبايل -->
+    <button class="hamburger" onclick="toggleMenu()">
+        <i class="fas fa-bars"></i>
+    </button>
 </div>
 
-<button class="menu-btn" onclick="toggleSidebar()">☰</button>
-
-<div class="sidebar active" id="sidebar">
-    <a href="/booking">احجز مواعيد حصصك</a>
-    <a href="/login">سجل الدخول لحسابك</a>
+<!-- منيو الموبايل -->
+<div class="mobile-menu" id="mobileMenu">
+    <a href="#contact" onclick="toggleMenu()"> تواصل معنا</a>
+    <a href="/reviews" onclick="toggleMenu()"> آراء العملاء</a>
+    <a href="/offers" onclick="toggleMenu()"> العروض الحالية للكورسات</a>
+    <a href="/home" onclick="toggleMenu()"> الصفحة الرئيسية</a>
 </div>
 
 <div class="main-content">
     <ul>
-        <li>أكتر من 5000 متدرب ناجح</li>
-        <li>مدربين محترفين</li>
-        <li>خبرة 10 اعوام في تعليم القيادة</li>
+        <li><a href="/booking">احجز مواعيد حصصك</a></li>
+        <li><a href="/login">سجل الدخول لحسابك</a></li>
     </ul>
 </div>
 
@@ -301,21 +284,11 @@
                 <i class="fab fa-youtube"></i> YouTube
             </a>
         </div>
-        <div class="contact-box">
-            <h3>:عنواننا</h3>
-            <p>الاسكندرية الشاطبي,</p> 
-            <p>ش- بورسعيد</p>
-            <p>خلف جمعية الشبان المسلمين</p>
-            <p>من 10 ص الى 8 م</p>
-        </div>
     </div>
 </div>
 
 <script>
-    function toggleSidebar() {
-        document.getElementById("sidebar").classList.toggle("active");
-    }
-
+    // خلفية متغيرة
     const backgrounds = [
         "{{ url_for('static', filename='background.jpg') }}",
     ];
@@ -323,6 +296,26 @@
 
     document.body.style.backgroundImage = `url('${backgrounds[currentIndex]}')`;
     setInterval(changeBackground, 2000);
+
+    function changeBackground() {
+        currentIndex = (currentIndex + 1) % backgrounds.length;
+        document.body.style.backgroundImage = `url('${backgrounds[currentIndex]}')`;
+    }
+
+    // منيو الموبايل
+    function toggleMenu() {
+        const menu = document.getElementById("mobileMenu");
+        menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
+    }
+
+    // يقفل المنيو لو دوست بره
+    document.addEventListener("click", function(e) {
+        const menu = document.getElementById("mobileMenu");
+        const hamburger = document.querySelector(".hamburger");
+        if (menu.style.display === "flex" && !menu.contains(e.target) && !hamburger.contains(e.target)) {
+            menu.style.display = "none";
+        }
+    });
 </script>
 
 </body>

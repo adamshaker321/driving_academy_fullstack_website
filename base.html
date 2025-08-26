@@ -2,6 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- عشان يظبط على الموبايل -->
 <title>{% block title %}A&N Driving Academy{% endblock %}</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
@@ -12,7 +13,7 @@
         background: #f8f9fa;
     }
 
-    /* Top Bar */
+    /* ✅ Top Bar */
     .top-bar {
         background-color: rgba(38, 50, 56, 0.9);
         color: white;
@@ -41,6 +42,8 @@
         margin: 0;
         white-space: nowrap;
     }
+
+    /* ✅ Links container */
     .top-links {
         display: flex;
         gap: 10px;
@@ -53,59 +56,45 @@
         padding: 8px 15px;
         border-radius: 20px;
         transition: 0.3s;
+        display: inline-block;
     }
     .top-links a:hover {
         background: #2e7d32;
         transform: scale(1.05);
     }
 
-    /* Sidebar */
-    .menu-btn {
-        position: fixed;
-        top: 70px;
-        right: 15px;
-        z-index: 101;
-        font-size: 26px;
-        background: #388e3c;
-        color: white;
-        padding: 10px 15px;
-        border-radius: 8px;
+    /* ✅ Hamburger menu button (موبايل) */
+    .menu-toggle {
+        display: none;
+        font-size: 24px;
         cursor: pointer;
+        background: #388e3c;
         border: none;
-    }
-    .sidebar {
-        position: fixed;
-        top: 0;
-        right: -240px;
-        width: 220px;
-        height: 100vh;
-        background-color: rgba(38, 50, 56, 0.95);
-        padding-top: 100px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        z-index: 100;
-        transition: right 0.3s ease;
-    }
-    .sidebar.active {
-        right: 0;
-    }
-    .sidebar a {
         color: white;
-        text-decoration: none;
-        margin: 15px 0;
-        padding: 12px 20px;
-        border-radius: 25px;
-        background-color: #388e3c;
-        font-weight: bold;
-        font-size: 16px;
-        width: 80%;
-        text-align: center;
-        transition: 0.3s ease;
+        padding: 8px 12px;
+        border-radius: 8px;
     }
-    .sidebar a:hover {
-        background-color: #2e7d32;
-        transform: scale(1.05);
+
+    /* ✅ Responsive */
+    @media (max-width: 768px) {
+        .top-links {
+            display: none; /* اختفاء اللينكات */
+            flex-direction: column;
+            position: absolute;
+            top: 60px;
+            right: 15px;
+            background: rgba(38, 50, 56, 0.95);
+            padding: 10px;
+            border-radius: 10px;
+            width: auto;
+            min-width: 180px;
+        }
+        .top-links.show {
+            display: flex; /* إظهار القائمة لما يضغط على زرار المنيو */
+        }
+        .menu-toggle {
+            display: block; /* زرار المنيو يظهر على الموبايل */
+        }
     }
 
     /* Page content padding */
@@ -113,74 +102,32 @@
         padding: 120px 20px 20px;
         min-height: 70vh;
     }
-        .sidebar {
-        position: fixed;
-        top: 0;
-        right: -240px;
-        width: 220px;
-        height: 100vh;
-        background-color: rgba(38, 50, 56, 0.95);
-        padding-top: 180px; /* رفع العناصر تحت أكتر */
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        z-index: 100;
-        transition: right 0.3s ease;
-    }
-
-    .sidebar.active { right: 0; }
-
-    .sidebar a {
-        color: white;
-        text-decoration: none;
-        margin: 15px 0;
-        padding: 12px 20px;
-        border-radius: 25px;
-        background-color: #388e3c;
-        font-weight: bold;
-        font-size: 16px;
-        width: 80%;
-        text-align: center;
-        transition: 0.3s ease;
-        margin-bottom: 50px;
-
-    }
-
-    .sidebar a:hover {
-        background-color: #2e7d32;
-        transform: scale(1.05);
-    }
-
 </style>
 
 {% block styles %}{% endblock %}
 </head>
 <body>
 
-<!-- Topbar -->
+<!-- ✅ Topbar -->
 <div class="top-bar">
     <div class="top-left">
         <a href="/home">
             <img src="{{ url_for('static', filename='logo.jpg') }}" alt="شعار الأكاديمية">
         </a>
-        <h1>A&N Driving Academy (Captain Ashraf)</h1>
     </div>
-    <div class="top-links">
-        <a href="/home#contact">📞 تواصل معنا</a>
-        <a href="/reviews">💬 آراء العملاء</a>
-        <a href="/offers">📢 العروض الحالية للكورسات</a>
-        <a href="/home">🏠 الصفحة الرئيسية</a>
+
+    <!-- زرار المنيو (موبايل) -->
+    <button class="menu-toggle" onclick="toggleMenu()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- اللينكات -->
+    <div class="top-links" id="menu">
+        <a href="/home#contact"> تواصل معنا</a>
+        <a href="/reviews"> آراء العملاء</a>
+        <a href="/offers"> العروض الحالية للكورسات</a>
+        <a href="/home"> الصفحة الرئيسية</a>
     </div>
-</div>
-
-<!-- Sidebar Button -->
-<button class="menu-btn" onclick="toggleSidebar()">☰</button>
-
-<!-- Sidebar -->
-<div class="sidebar" id="sidebar">
-    <a href="/booking">احجز مواعيد حصصك</a>
-    <a href="/login">سجل الدخول لحسابك</a>
-
 </div>
 
 <!-- Page Content -->
@@ -189,8 +136,8 @@
 </div>
 
 <script>
-    function toggleSidebar() {
-        document.getElementById("sidebar").classList.toggle("active");
+    function toggleMenu() {
+        document.getElementById("menu").classList.toggle("show");
     }
 </script>
 

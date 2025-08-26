@@ -264,7 +264,7 @@ def manual_booking():
         current_date = start_date + timedelta(days=i)
         is_past = current_date < today
         # منع الإلغاء لو باقي يوم أو أقل على الحصة
-        disable_cancel = 0 <= (current_date - today).days <= 1
+        disable_cancel = 0 <= (current_date - today).days < 1
         days_list.append({
             "name": day_name,
             "date": current_date.strftime("%d/%m"),
@@ -433,7 +433,7 @@ def manual_booking_2():
     for i, day_name in enumerate(arabic_days):
         current_date = start_date + timedelta(days=i)
         is_past = current_date < today
-        disable_cancel = 0 <= (current_date - today).days <= 1  # منع الإلغاء قبل يوم
+        disable_cancel = 0 <= (current_date - today).days < 1  # منع الإلغاء قبل يوم
         week_days.append({
             "name": day_name,
             "date": current_date,
@@ -481,7 +481,7 @@ def automatic_booking():
     for i, day in enumerate(days_of_week):
         day_date = start_date + timedelta(days=i)
         # لو باقي يوم أو أقل → ممنوع الإلغاء
-        disable_cancel = (day_date - today).days <= 1
+        disable_cancel = (day_date - today).days < 1
         days_with_dates.append({"name": day, "date": day_date, "disable_cancel": disable_cancel})
 
     if request.method == 'POST':
@@ -581,7 +581,7 @@ def automatic_booking_2():
     days_with_dates = []
     for i, day in enumerate(days_of_week):
         day_date = start_date + timedelta(days=i)
-        disable_cancel = (day_date - today).days <= 1  # لو باقي يوم أو أقل → ممنوع الإلغاء
+        disable_cancel = (day_date - today).days < 1  # لو باقي يوم أو أقل → ممنوع الإلغاء
         days_with_dates.append({"name": day, "date": day_date, "disable_cancel": disable_cancel, "date_str": day_date.strftime("%Y-%m-%d")})
 
     if request.method == 'POST':

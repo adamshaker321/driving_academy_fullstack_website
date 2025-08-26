@@ -8,12 +8,16 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
     color: #fff;
+    margin: 0;
+  }
+
+  /* ✅ container للفورم في النص تحت التوب بار */
+  .login-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    margin: 0;
-    position: relative;
+    min-height: calc(100vh - 100px); /* يطرح ارتفاع التوب بار */
+    padding-top: 100px; /* يبعد شوية عن التوب بار */
   }
 
   form {
@@ -22,7 +26,8 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
     padding: 40px;
-    width: 360px;
+    width: 90%;          /* تعديل عشان يظبط على الموبايل */
+    max-width: 360px;    /* أقصى عرض للفورم */
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
     animation: slideFade 1.2s ease;
     text-align: center;
@@ -91,10 +96,10 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* الرسالة */
+  /* ✅ الرسالة (Flash Message) */
   .flash-message {
-    position: absolute;
-    top: 70px; /* 👈 تبعد عن التوب بار */
+    position: fixed;
+    top: 70px; /* تحت التوب بار */
     left: 50%;
     transform: translateX(-50%);
     max-width: 80%;
@@ -107,7 +112,7 @@
     color: #fff;
     box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
     animation: slideDown 0.6s ease, fadeOut 1s ease 3s forwards;
-    z-index: 1000;
+    z-index: 2000;
   }
 
   .flash-message.success {
@@ -124,6 +129,25 @@
     from { opacity: 1; transform: translate(-50%, 0); }
     to { opacity: 0; transform: translate(-50%, -40px); }
   }
+
+  /* ✅ تصغير الخطوط للموبايل */
+  @media (max-width: 480px) {
+    h2 {
+      font-size: 20px;
+    }
+    label h3 {
+      font-size: 14px;
+    }
+    input[type="text"],
+    input[type="password"] {
+      font-size: 14px;
+      padding: 10px;
+    }
+    input[type="submit"] {
+      font-size: 16px;
+      padding: 10px;
+    }
+  }
 </style>
 {% endblock %}
 
@@ -132,22 +156,24 @@
     <p class="flash-message {% if success %}success{% endif %}">{{ message }}</p>
   {% endif %}
 
-  <form action="/login" method="POST">
-    <!-- الصورة -->
-    <img src="{{ url_for('static', filename='forms_background.png') }}" alt="شعار الأكاديمية">
+  <div class="login-container">
+    <form action="/login" method="POST">
+      <!-- الصورة -->
+      <img src="{{ url_for('static', filename='forms_background.png') }}" alt="شعار الأكاديمية">
 
-    <h2>تسجيل الدخول</h2>
+      <h2>تسجيل الدخول</h2>
 
-    <div>
-      <label><h3>ادخل اسم المستخدم الخاص بك</h3></label>
-      <input type="text" name="client_name" required placeholder="name">
-    </div>    
+      <div>
+        <label><h3>ادخل اسم المستخدم الخاص بك</h3></label>
+        <input type="text" name="client_name" required placeholder="name">
+      </div>    
 
-    <div>
-      <label><h3>ادخل الكود الخاص بك</h3></label>
-      <input type="password" name="client_id" required placeholder="password">
-    </div>
+      <div>
+        <label><h3>ادخل الكود الخاص بك</h3></label>
+        <input type="password" name="client_id" required placeholder="password">
+      </div>
 
-    <input type="submit" value="تسجيل الدخول">
-  </form>
+      <input type="submit" value="تسجيل الدخول">
+    </form>
+  </div>
 {% endblock %}
