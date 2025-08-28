@@ -208,12 +208,16 @@ def booking():
                 total_sessions= cursor.fetchone()[0]
                 if total_sessions <5:
                     return redirect("/manual_booking")
+                else:
+                    message='⚠️ انهيت حصصك'
             
             elif row[1] == 'automatic':
                 cursor.execute("select count(*) from automatic_sessions_per_client where id=%s",(clients_id,))
                 total_sessions= cursor.fetchone()[0]
                 if total_sessions <5:
                     return redirect("/automatic_booking")
+                else:
+                    message='⚠️ انهيت حصصك'
                 
             elif row[1] =='mix':
                 cursor.execute("select count(*) from manual_sessions_per_client where id=%s",(clients_id,))
@@ -224,6 +228,9 @@ def booking():
                     return redirect("/manual_booking")
                 elif total_manual_sessions>=3 and total_automatic_sessions <3:
                     return redirect("/automatic_booking")
+                else:
+                    message='⚠️ انهيت حصصك'
+
         else:
 
             cursor.close()
@@ -304,10 +311,10 @@ def manual_booking():
             if already_booked:
                 already_booked_message = "⚠ انت حجزت المعاد ده قبل كده."
             else:
-                cursor.execute("SELECT id FROM clients WHERE id = %s", (client_id,))
+                cursor.execute("SELECT id,course FROM clients WHERE id = %s", (client_id,))
                 client_exists = cursor.fetchone()
 
-                if client_exists:
+                if client_exists and client_exists[1] in ['mix', 'manual']:
                     cursor.execute("SELECT count(*) FROM client_manual_sessions where id = %s", (client_id,))
                     total_sessions_per_week = cursor.fetchone()[0]
                     if total_sessions_per_week < 2:
@@ -396,10 +403,10 @@ def manual_booking_2():
             if already_booked:
                 already_booked_message = "⚠ انت حجزت المعاد ده قبل كده."
             else:
-                cursor.execute("SELECT id FROM clients WHERE id = %s", (client_id,))
+                cursor.execute("SELECT id,course FROM clients WHERE id = %s", (client_id,))
                 client_exists = cursor.fetchone()
 
-                if client_exists:
+                if client_exists and client_exists[1] in ['mix', 'manual']:
                     cursor.execute("SELECT count(*) FROM client_manual_sessions_2 where id = %s", (client_id,))
                     total_sessions_per_week = cursor.fetchone()[0]
                     if total_sessions_per_week < 2:
@@ -510,10 +517,10 @@ def automatic_booking():
             if already_booked:
                 already_booked_message = "⚠ انت حجزت المعاد ده قبل كده."
             else:
-                cursor.execute("SELECT id FROM clients WHERE id = %s", (client_id,))
+                cursor.execute("SELECT id,course FROM clients WHERE id = %s", (client_id,))
                 client_exists = cursor.fetchone()
 
-                if client_exists:
+                if client_exists and client_exists[1] in ['mix', 'automatic']:
                     cursor.execute("SELECT count(*) FROM client_automatic_sessions where id = %s", (client_id,))
                     total_sessions_per_week = cursor.fetchone()[0]
                     if total_sessions_per_week < 2:
@@ -610,10 +617,10 @@ def automatic_booking_2():
             if already_booked:
                 already_booked_message = "⚠ انت حجزت المعاد ده قبل كده."
             else:
-                cursor.execute("SELECT id FROM clients WHERE id = %s", (client_id,))
+                cursor.execute("SELECT id ,course FROM clients WHERE id = %s", (client_id,))
                 client_exists = cursor.fetchone()
 
-                if client_exists:
+                if client_exists and client_exists[1] in ['mix', 'automatic']:
                     cursor.execute("SELECT count(*) FROM client_automatic_sessions_2 where id = %s", (client_id,))
                     total_sessions_per_week = cursor.fetchone()[0]  
                     if total_sessions_per_week < 2:

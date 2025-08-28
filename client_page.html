@@ -59,6 +59,7 @@
             <th>رقمك التعريفي </th>
             <th>رقم هاتفك</th>
             <th>مواعيد حصصك</th>
+            <th>نوع الحصة</th>
         </tr>
             {% for session in sessions_manual %}
             <tr>
@@ -66,14 +67,17 @@
                 <td>{{ session[1] }}</td>
                 <td>{{ session[2] }}</td>
                 <td>{{ session[3] }}</td>
+                <td>حصة مانيوال</td>
             </tr>
             {% endfor %}
-        {% elif sessions_automatic %}
+        {%endif%}    
+        {% if sessions_automatic %}
         <tr>
             <th>اسمك </th>
             <th>رقمك التعريفي </th>
             <th>رقم هاتفك</th>
             <th>مواعيد حصصك</th>
+            <th>نوع الحصة</th>
         </tr>
             {% for session in sessions_automatic %}
             <tr>
@@ -81,10 +85,10 @@
                 <td>{{ session[1] }}</td>
                 <td>{{ session[2] }}</td>
                 <td>{{ session[3] }}</td>
+                <td>حصة اوتوماتيك</td>
             </tr>
             {% endfor %}
-            {%else%}
-            <tr><td colspan="3" class="no-data">لا يوجد مواعيد</td></tr>
+            
         </table>
         {% endif %}
     

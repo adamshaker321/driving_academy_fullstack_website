@@ -5,17 +5,75 @@
 {% block styles %}
 <style>
   h1 { text-align: center; color: black; margin-top: 50px; }
-  .tables-container { display: flex; justify-content: center; gap: 30px; margin-top: 20px; flex-wrap: wrap; }
-  .table { width: 100%; border-collapse: collapse; font-size: 18px; }
-  .table th, .table td { padding: 12px; text-align: center; border: 1px solid #ccc; }
+
+  /* حاوية الجدول */
+  .tables-container { 
+    display: flex; 
+    justify-content: center; 
+    gap: 30px; 
+    flex-wrap: nowrap; 
+    padding-bottom: 20px; 
+  }
+
+  .table-wrapper {
+    flex: 1;
+    min-width: 800px; 
+    overflow-x: auto; 
+  }
+
+  .table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    font-size: 18px; 
+    min-width: 800px; 
+  }
+
+  .table th, .table td { 
+    padding: 12px; 
+    text-align: center; 
+    border: 1px solid #ccc; 
+  }
+
+  /* عمود الساعة ثابت وواضح على اللاب */
+  .table th:first-child, .table td:first-child {
+    font-size: 20px;
+    font-weight: bold;
+    background: #f5f5f5;
+    color: #000;
+    min-width: 120px; 
+    text-align: center;
+    position: sticky;
+    right: 0;
+    z-index: 2;
+  }
+
+  /* تعديل للموبايل: العمود الأول يظهر دايمًا */
+  @media screen and (max-width: 768px) {
+    .tables-container {
+        flex-direction: column; /* نخلي الجدول في عمود */
+    }
+    .table-wrapper {
+        overflow-x: auto; /* scroll أفقي للجدول فقط */
+        min-width: 100%;
+    }
+    .table th:first-child, .table td:first-child {
+        position: static !important; /* نخلي العمود ثابت */
+        background: #f5f5f5;
+        min-width: 120px;
+        display: table-cell;
+        font-size: 18px;
+        font-weight: bold;
+    }
+  }
+
   .book-btn { background-color: green; color: white; padding: 6px 10px; border: none; cursor: pointer; border-radius: 5px; }
   .cancel-btn { color: red; font-weight: bold; cursor: pointer; text-decoration: underline; }
   .popup-form { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 1000; }
-  .popup-form input { display: block; width: 100%; padding: 8px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; }
+  .popup-form input { display: block; width: 100%; padding: 8px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; justify-content: center; align-items: center;}
   .close-btn { background: red; color: white; padding: 5px 10px; border: none; cursor: pointer; float: right; border-radius: 5px; }
   .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 999; }
   .alert-message { color: red; font-weight: bold; text-align: center; margin-bottom: 15px; padding: 10px; background: #ffe5e5; border: 1px solid red; border-radius: 5px; width: 60%; margin-left: auto; margin-right: auto; }
-  .table-wrapper { flex: 1; min-width: 600px; }
+
   .next-week-btn {
     background: black;
     color: white;
@@ -25,55 +83,69 @@
     font-size: 16px;
     transition: 0.3s;
   }
-  .next-week-btn:hover {
-    background: #0056b3;
+  .next-week-btn:hover { background: #0056b3; }
+
+ #popupForm input[type="submit"] {
+    background-color: gray;
+    color: white;
+    cursor: not-allowed;
+}
+
+/* اللون لما يكون جاهز */
+#popupForm input[type="submit"].ready {
+    background-color: green;
+    cursor: pointer;
+}
+.input[type='text'], input[type='password'], input[type='tel'] {
+    box-sizing: border-box;
+}
+
+  /* فورم الحجز */
+  .booking-form {
+    width: 300px;
+    margin: 50px auto;
+    padding: 30px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    animation: slideFade 0.5s ease-in-out;
   }
 
-
-  .table {
-    width: 100%;
-    min-width: 800px; /* ✅ يحافظ على ظهور عمود الساعة */
-    border-collapse: collapse;
-    font-size: 18px;
+  .booking-form h2 {
+    text-align: center;
+    color: #00e6e6;
+    margin-bottom: 20px;
+    font-size: 24px;
   }
 
-  .table th, .table td { 
-    padding: 12px; 
-    text-align: center; 
-    border: 1px solid #ccc; 
+  .booking-form label {
+    display: block;
+    margin: 10px 0 5px;
+    font-size: 16px;
+    color: #e0e0e0;
   }
 
-  /* ✅ عمود الساعة أوضح */
-  .table td:first-child, .table th:first-child {
-    font-size: 20px;
-    font-weight: bold;
-    background: #f5f5f5;
-    color: #000;
-    position: sticky; /* يخليها ثابتة لو الجدول اتسحب */
-    right: 0;
-    z-index: 2;
+  .booking-form label span {
+    color: red;
+    margin-left: 5px;
   }
 
+  .booking-form .right {
+    display: block;
+  }
+  .booking-form .left {
+    float: left;
+    margin-right: 10px;
+  }
 
+  
 </style>
 {% endblock %}
 
 {% block content %}
 <h1>جدول المانيوال</h1>
 
-{% if message %}
-  <div class="alert-message">{{ message }}</div>
-{% elif already_booked_message %}
-  <div class="alert-message">{{ already_booked_message }}</div>
-{% elif booked_confirmed_message %}
-  <div class="alert-message" style="background:#e5ffe5; border:1px solid green; color:green;">
-    {{ booked_confirmed_message }}
-  </div>
-{% elif more_than_two_sessions %}
-  <div class="alert-message">{{ more_than_two_sessions }}</div>
-{% elif delete_message %}
-  <div class="alert-message">{{ delete_message }}</div>
-{% endif %}
+{% if message %}<div class="alert-message">{{ message }}</div>{% elif already_booked_message %}<div class="alert-message">{{ already_booked_message }}</div>{% elif booked_confirmed_message %}<div class="alert-message" style="background:#e5ffe5; border:1px solid green; color:green;">{{ booked_confirmed_message }}</div>{% elif more_than_two_sessions %}<div class="alert-message">{{ more_than_two_sessions }}</div>{% elif delete_message %}<div class="alert-message">{{ delete_message }}</div>{% endif %}
 
 <div class="overlay" id="overlay"></div>
 
@@ -82,7 +154,7 @@
   <button class="close-btn" onclick="closeForm()">X</button>
   <h3>احجز المعاد</h3>
   <form method="POST" action="/manual_booking">
-    <input type="text" name="name" placeholder="الاسم" required>
+    <input type="text" name="name" placeholder="الاسم" required >
     <input type="password" name="password" placeholder="ID" required>
     <input type="text" name="session_day_hour" id="sessionDayHour" readonly>
     <input type="tel" name="phone" placeholder="رقم الهاتف" required>
@@ -109,42 +181,41 @@
     </div>
     <table class="table">
       <tr>
-          <th>الساعة</th>
-          {% for day in days_list %}
-            <th>{{ day.name }} <br> {{ day.date }}</th>
-          {% endfor %}
+        <th>الساعة</th>
+        {% for day in days_list %}
+          <th>{{ day.name }} <br> {{ day.date }}</th>
+        {% endfor %}
       </tr>
       {% for hour in ["10 ص","11 ص","12 م","1 م","2 م","3 م","4 م","5 م","6 م","7 م"] %}
       <tr>
-          <td>الساعة {{ hour }}</td>
-          {% for day in days_list %}
-              {% set day_hour_label = "يوم " ~ day.name ~ " " ~ day.date ~ " الساعة " ~ hour %}
-              {% if (hour in ["10 ص", "11 ص", "12 م", "1 م"]) and (day.name in ["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"]) %}
-                  {% set num_cells = 2 %}
-              {% else %}
-                  {% set num_cells = 3 %}
-              {% endif %}
-<td>
-    {% set names = booked_slots_names.get(day_hour_label, []) %}
-    {% if day.is_past %}
-        <!-- لو اليوم فات نقفله -->
-        <span style="color:gray; font-weight:bold;">//</span>
-    {% else %}
-{% for i in range(num_cells) %}
-    {% if i < names|length %}
-        {% if not day.disable_cancel %}
-            <span class="cancel-btn" onclick="openCancelForm('{{ day_hour_label }}')">{{ names[i] }} (الغاء الحجز)</span>
-        {% else %}
-            <span style="font-weight:bold; color: green;">{{ names[i] }}</span>
-        {% endif %}
-    {% else %}
-        <button class="book-btn" onclick="openForm('{{ day_hour_label }}')">احجز</button>
-    {% endif %}
-    <br>
-{% endfor %}
-    {% endif %}
-</td>
-          {% endfor %}
+        <td>الساعة {{ hour }}</td>
+        {% for day in days_list %}
+            {% set day_hour_label = "يوم " ~ day.name ~ " " ~ day.date ~ " الساعة " ~ hour %}
+            {% if (hour in ["10 ص", "11 ص", "12 م", "1 م"]) and (day.name in ["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"]) %}
+                {% set num_cells = 2 %}
+            {% else %}
+                {% set num_cells = 3 %}
+            {% endif %}
+            <td>
+                {% set names = booked_slots_names.get(day_hour_label, []) %}
+                {% if day.is_past %}
+                    <span style="color:gray; font-weight:bold;">//</span>
+                {% else %}
+                    {% for i in range(num_cells) %}
+                        {% if i < names|length %}
+                            {% if not day.disable_cancel %}
+                                <span class="cancel-btn" onclick="openCancelForm('{{ day_hour_label }}')">{{ names[i] }} (الغاء الحجز)</span>
+                            {% else %}
+                                <span style="font-weight:bold; color: green;">{{ names[i] }}</span>
+                            {% endif %}
+                        {% else %}
+                            <button class="book-btn" onclick="openForm('{{ day_hour_label }}')">احجز</button>
+                        {% endif %}
+                        <br>
+                    {% endfor %}
+                {% endif %}
+            </td>
+        {% endfor %}
       </tr>
       {% endfor %}
     </table>
@@ -152,6 +223,30 @@
 </div>
 
 <script>
+
+function checkFormFilled(formId) {
+    const form = document.getElementById(formId);
+    const submitBtn = form.querySelector('input[type="submit"]');
+    const inputs = form.querySelectorAll('input[required]');
+
+    function validate() {
+        let allFilled = true;
+        inputs.forEach(input => {
+            if (input.value.trim() === '') allFilled = false;
+        });
+        if (allFilled) {
+            submitBtn.classList.add('ready');
+        } else {
+            submitBtn.classList.remove('ready');
+        }
+    }
+
+    inputs.forEach(input => input.addEventListener('input', validate));
+}
+
+// نطبق على الفورم بتاع الحجز
+checkFormFilled('popupForm');
+
 function openForm(dayHour) {
   document.getElementById("overlay").style.display = "block";
   document.getElementById("popupForm").style.display = "block";
