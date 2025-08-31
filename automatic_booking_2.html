@@ -45,6 +45,24 @@
     z-index: 2;
   }
 
+  @media screen and (max-width: 768px) {
+    .tables-container {
+        flex-direction: column;
+    }
+    .table-wrapper {
+        overflow-x: auto;
+        min-width: 100%;
+    }
+    .table th:first-child, .table td:first-child {
+        position: static !important;
+        background: #f5f5f5;
+        min-width: 120px;
+        display: table-cell;
+        font-size: 18px;
+        font-weight: bold;
+    }
+  }
+
   .book-btn { background-color: green; color: white; padding: 6px 10px; border: none; cursor: pointer; border-radius: 5px; }
   .cancel-btn { color: red; font-weight: bold; cursor: pointer; text-decoration: underline; }
   .popup-form { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 1000; }
@@ -63,18 +81,28 @@
     transition: 0.3s;
   }
   .next-week-btn:hover { background: #0056b3; }
+
+  #popupForm input[type="submit"] {
+    background-color: gray;
+    color: white;
+    cursor: not-allowed;
+  }
+  #popupForm input[type="submit"].ready {
+    background-color: green;
+    cursor: pointer;
+  }
 </style>
 {% endblock %}
 
 {% block content %}
 <h1> جدول الاوتوماتيك</h1>
 
-{% if message %}<div class="alert-message">{{ message }}</div>
-{% elif already_booked_message %}<div class="alert-message">{{ already_booked_message }}</div>
-{% elif booked_confirmed_message %}
-<div class="alert-message" style="background:#e5ffe5; border:1px solid green; color:green;">{{ booked_confirmed_message }}</div>
-{% elif more_than_two_sessions %}
-<div class="alert-message">{{ more_than_two_sessions }}</div>{% endif %}
+{% if message %}<div class="alert-message">{{ message }}</div>{% endif %}
+{% if already_booked_message %}<div class="alert-message">{{ already_booked_message }}</div>{% endif %}
+{% if booked_confirmed_message %}
+  <div class="alert-message" style="background:#e5ffe5; border:1px solid green; color:green;">{{ booked_confirmed_message }}</div>
+{% endif %}
+{% if more_than_two_sessions %}<div class="alert-message">{{ more_than_two_sessions }}</div>{% endif %}
 
 <div class="overlay" id="overlay"></div>
 
@@ -82,12 +110,12 @@
 <div class="popup-form" id="popupForm">
   <button class="close-btn" onclick="closeForm()">X</button>
   <h3>احجز المعاد</h3>
-  <form method="POST" action="/automatic_booking_2">
+  <form method="POST" action="/automatic_booking_2" id="popupFormInner">
     <input type="text" name="name" placeholder="الاسم" required>
     <input type="password" name="password" placeholder="ID" required>
     <input type="text" name="session_day_hour" id="sessionDayHour" readonly>
     <input type="tel" name="phone" placeholder="رقم الهاتف" required>
-    <input type="hidden" name="slot_index" id="slotIndex"> <!-- ✅ رقم الزرار -->
+    <input type="hidden" name="slot_index" id="slotIndex">
     <input type="hidden" name="table_id" value="2">
     <input type="submit" value="حجز">
   </form>
@@ -134,13 +162,14 @@
               {% for i in range(2) %}
                 {% set slot_key = day_hour_label ~ "_" ~ i %}
                 {% if i < names|length %}
-                  {% if day.disable_cancel %}{{ names[i] }}
+                  {% if day.disable_cancel %}
+                    {{ names[i] }}
                   {% else %}
                     <span class="cancel-btn" onclick="openCancelForm('{{ day_hour_label }}')">{{ names[i] }} (الغاء الحجز)</span>
                   {% endif %}
                 {% else %}
                   {% if slot_key in hidden_slots %}
-                    <!-- ✅ متعرضش الزرار اللي مستخبي -->
+                    <span style="color:gray;"></span>
                   {% else %}
                     <button class="book-btn" onclick="openForm('{{ day_hour_label }}','{{ i }}')">احجز</button>
                   {% endif %}
@@ -157,11 +186,32 @@
 </div>
 
 <script>
+function checkFormFilled(formId) {
+    const form = document.getElementById(formId);
+    const submitBtn = form.querySelector('input[type="submit"]');
+    const inputs = form.querySelectorAll('input[required]');
+
+    function validate() {
+        let allFilled = true;
+        inputs.forEach(input => {
+            if (input.value.trim() === '') allFilled = false;
+        });
+        if (allFilled) {
+            submitBtn.classList.add('ready');
+        } else {
+            submitBtn.classList.remove('ready');
+        }
+    }
+
+    inputs.forEach(input => input.addEventListener('input', validate));
+}
+checkFormFilled('popupFormInner');
+
 function openForm(dayHour, index) {
   document.getElementById("overlay").style.display = "block";
   document.getElementById("popupForm").style.display = "block";
   document.getElementById("sessionDayHour").value = dayHour;
-  document.getElementById("slotIndex").value = index; // ✅ نخزن رقم الزرار
+  document.getElementById("slotIndex").value = index;
 }
 function closeForm() {
   document.getElementById("overlay").style.display = "none";
