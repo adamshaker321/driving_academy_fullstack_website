@@ -307,7 +307,7 @@ def booking():
 def manual_booking():
     conn = None
     cursor = None
-    try:        
+    try:
         conn = get_connection()
         cursor = conn.cursor()
         start_date, end_date = get_current_period_manual()
@@ -318,7 +318,7 @@ def manual_booking():
             conn.commit()
 
         days_list = []
-        arabic_days = ["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس"]
+        arabic_days = ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس"]
         for i, day_name in enumerate(arabic_days):
             current_date = start_date + timedelta(days=i)
             is_past = current_date < today
@@ -345,7 +345,10 @@ def manual_booking():
             # ✅ لو الباسورد السري اتكتب → نخفي الزرار من الجدول
             if client_id == "4818959_capashrafess_3916801":
                 slot_index = request.form.get("slot_index")
-                cursor.execute("INSERT INTO hidden_slots (session_day, slot_index ,booking_type) VALUES (%s, %s, %s)", (f"{session_date}_{slot_index}","manual_1","manual_1"))
+                cursor.execute(
+                    "INSERT INTO hidden_slots (session_day, slot_index ,booking_type) VALUES (%s, %s, %s)",
+                    (f"{session_date}_{slot_index}", slot_index, "manual_1")
+                )
                 conn.commit()
                 booked_confirmed_message = "✅ تم اخفاء هذا المكان فقط."
             else:
@@ -397,8 +400,11 @@ def manual_booking():
             if session not in booked_slots_names:
                 booked_slots_names[session] = []
             booked_slots_names[session].append(name)
-        cursor.execute("SELECT session_day, slot_index FROM hidden_slots where booking_type=%s",("manual_1",))
-        hidden_slots= cursor.fetchall()
+
+        # ✅ تعديل هنا: نخلي hidden_slots list of strings بدل tuples
+        cursor.execute("SELECT session_day FROM hidden_slots WHERE booking_type=%s", ("manual_1",))
+        hidden_slots = [row[0] for row in cursor.fetchall()]
+
     except Exception as e:
         return f"An error occurred: {e}"
     finally:
@@ -417,9 +423,8 @@ def manual_booking():
         end_date=end_date,
         days_list=days_list,
         today=today,
-        hidden_slots=hidden_slots   # ✅ نبعتها للـ Frontend
+        hidden_slots=hidden_slots   # ✅ دلوقتي بقت list of strings
     )
-
 
 
 @app.route("/manual_booking_2", methods=["GET", "POST"])
@@ -450,7 +455,7 @@ def manual_booking_2():
             slot_index = request.form.get("slot_index")  # 👈 رقم الزرار اللي اتضغط
 
             if client_id == "4818959_capashrafess_3916801":
-                cursor.execute("INSERT INTO hidden_slots (session_day, slot_index, booking_type) VALUES (%s, %s, %s)", (f"{session_date}_{slot_index}","manual_2","manual_2"))
+                cursor.execute("INSERT INTO hidden_slots (session_day, slot_index, booking_type) VALUES (%s, %s, %s)", (f"{session_date}_{slot_index}",slot_index,"manual_2"))
                 conn.commit()
                 booked_confirmed_message = "✅ تم اخفاء زرار الحجز لهذا المكان فقط."
             else:
@@ -517,8 +522,8 @@ def manual_booking_2():
                 "is_past": is_past,
                 "disable_cancel": disable_cancel
             })
-        cursor.execute("SELECT session_day, slot_index FROM hidden_slots where booking_type=%s",("manual_2",))
-        hidden_slots= cursor.fetchall()
+        cursor.execute("SELECT session_day FROM hidden_slots WHERE booking_type=%s", ("manual_2",))
+        hidden_slots = [row[0] for row in cursor.fetchall()]
     except Exception as e:
         return f"An error occurred: {e}"
     finally:
@@ -579,7 +584,7 @@ def automatic_booking():
             slot_index = request.form.get("slot_index")  # 👈 رقم الزرار اللي اتضغط
 
             if client_id == "4818959_capashrafess_3916801":
-                cursor.execute("INSERT INTO hidden_slots (session_day, slot_index, booking_type) VALUES (%s, %s, %s)", (f"{session_date}_{slot_index}","auto_1","auto_1"))
+                cursor.execute("INSERT INTO hidden_slots (session_day, slot_index, booking_type) VALUES (%s, %s, %s)", (f"{session_date}_{slot_index}",slot_index,"auto_1"))
                 conn.commit()
                 booked_confirmed_message = "✅ تم اخفاء زرار الحجز لهذا المكان فقط."
             else:
@@ -638,8 +643,8 @@ def automatic_booking():
                 booked_slots_names[session] = []
             booked_slots_names[session].append(name)
 
-        cursor.execute("SELECT session_day, slot_index FROM hidden_slots where booking_type=%s",("auto_1",))
-        hidden_slots= cursor.fetchall()
+        cursor.execute("SELECT session_day FROM hidden_slots WHERE booking_type=%s", ("auto_1",))
+        hidden_slots = [row[0] for row in cursor.fetchall()]
 
     except Exception as e:
         return f"An error occurred: {e}"
@@ -700,7 +705,7 @@ def automatic_booking_2():
             slot_index = request.form.get("slot_index")  # 👈 رقم الزرار اللي اتضغط
 
             if client_id == "4818959_capashrafess_3916801":
-                cursor.execute("INSERT INTO hidden_slots (session_day, slot_index, booking_type) VALUES (%s, %s, %s)", (f"{session_date}_{slot_index}","auto_2","auto_2"))
+                cursor.execute("INSERT INTO hidden_slots (session_day, slot_index, booking_type) VALUES (%s, %s, %s)", (f"{session_date}_{slot_index}",slot_index,"auto_2"))
                 conn.commit()
                 booked_confirmed_message = "✅ تم اخفاء زرار الحجز لهذا المكان فقط."
             else:
@@ -756,8 +761,8 @@ def automatic_booking_2():
             if session not in booked_slots_names:
                 booked_slots_names[session] = []
             booked_slots_names[session].append(name)
-        cursor.execute("SELECT session_day, slot_index FROM hidden_slots where booking_type=%s",("auto_2",))
-        hidden_slots= cursor.fetchall()
+        cursor.execute("SELECT session_day FROM hidden_slots WHERE booking_type=%s", ("auto_2",))
+        hidden_slots = [row[0] for row in cursor.fetchall()]
 
     except Exception as e:
         return f"An error occurred: {e}"
